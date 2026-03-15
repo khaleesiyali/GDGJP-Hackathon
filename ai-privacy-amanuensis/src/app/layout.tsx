@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "AI Privacy Amanuensis",
@@ -12,11 +13,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="bg-black text-yellow-400 min-h-screen antialiased selection:bg-yellow-400 selection:text-black">
-        <main className="max-w-md mx-auto h-screen relative overflow-hidden bg-black shadow-2xl flex flex-col">
-          {children}
-        </main>
+    <html lang="ja" suppressHydrationWarning>
+      <body className="min-h-screen antialiased selection:bg-[var(--brand-primary)] selection:text-[var(--brand-bg)] transition-colors duration-300">
+        <ThemeProvider>
+          <main className="max-w-md mx-auto h-screen relative overflow-hidden bg-[var(--brand-bg)] shadow-2xl flex flex-col transition-colors duration-300">
+            {children}
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   );
