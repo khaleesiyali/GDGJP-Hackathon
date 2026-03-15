@@ -18,9 +18,9 @@ from livekit.agents import Agent, function_tool
 
 logger = logging.getLogger("form-agent")
 
-# 1. 模拟从数据库/文件中读取 JSON 表单
+# 1. Reading JSON file and mock test
 def load_form_from_db(file_path="mock_form.json"):
-    # 为了方便你直接测试，如果文件不存在，直接返回一个包含 null 和 已填数据的 Mock 字典
+    # For testing purpose: a fake pdf file
     if not os.path.exists(file_path):
         return {
             "form_id": "doc_8848",
@@ -36,20 +36,21 @@ def load_form_from_db(file_path="mock_form.json"):
     with open(file_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-# 2. 动态生成的 Agent 类
+# 2. AGENT
 class FormAgent(Agent):
     def __init__(self, form_data: dict):
         self.form_data = form_data
         
-        # 核心逻辑：找出所有 value 为 None (null) 的字段名
+        # Finding All null values and ask users
         missing_fields = []
         for key, value in self.form_data.get("fields", {}).items():
             if value is None:
                 missing_fields.append(key)
         
-        # 将找出的字段变成字符串，喂给系统提示词
+        # Change everything into string and record it
         missing_fields_str = "\n".join([f"- {field}" for field in missing_fields])
         
+        #prompt still needs to be fixed. (漢字表記 and etc...)
         instructions = f"""
 あなたは日本区役所の親切な職員で、視覚障害のある方の申請書記入を丁寧にサポートします。
 
@@ -66,7 +67,7 @@ class FormAgent(Agent):
 """
         super().__init__(instructions=instructions)
 
-    # 3. 改为接收通用 JSON 字符串的 Tool
+    # 3. Change everything into JSON format
     @function_tool(description="すべての未入力項目が収集できたら、この関数を呼び出してデータを送信します。")
     async def submit_form_data(
         self,
@@ -77,28 +78,28 @@ class FormAgent(Agent):
             updated_json_string: 収集した情報をすべて埋めた、完全なJSON形式の文字列。
         """
         try:
-            # 将 LLM 传回来的字符串解析回 Python 字典
+            # From LLM to Dictionary format
             filled_data = json.loads(updated_json_string)
             
-            # 把收集到的数据合并回原始表单中
+            # PUT the Answer Directly into the original dictionary? Might need to fix that
             for key, value in filled_data.items():
                 if key in self.form_data["fields"]:
                     self.form_data["fields"][key] = value
 
             logger.info(f"\n========================================\n✅ 成功获取完整表单数据并写入:\n{json.dumps(self.form_data, ensure_ascii=False, indent=2)}\n========================================")
             
-            # 这里你可以添加将 self.form_data 保存回数据库的逻辑
+            # self.form_data is the final output, we can use this for PDF creation
             
             return "かしこまりました。ただいま書類を作成しております。"
         except json.JSONDecodeError:
             logger.error("LLM 传回来的不是标准 JSON 格式")
             return "すみません、システムエラーが発生しました。もう一度確認させてください。"
 
-# 3. 极简的 Agent 入口
+# 3. Calling Agent
 async def entrypoint(ctx: JobContext):
     await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
     
-    # 启动前，先从数据库/本地文件拉取这张表单
+    # Different Model (I dont know why but Gemini API is not working for me...So used OpenAI for now)
     current_form = load_form_from_db()
     
     session = AgentSession(
@@ -108,10 +109,17 @@ async def entrypoint(ctx: JobContext):
         vad=silero.VAD.load(),
     )
 
-    # 把动态表单传进去
+    
     await session.start(
         room=ctx.room,
         agent=FormAgent(form_data=current_form)
+    )
+    logger.info("发送隐形启动信号，唤醒 AI...")
+    
+    # 1. Sent Agent a secret message for it to start conversation
+    session.chat_ctx.append(
+        role="user",
+        text="【システム通知】ユーザーが部屋に入りました。ルールに従って、まずは優しく挨拶をし、最初の未入力項目（nullの項目）について質問を始めてください。"
     )
 
 if __name__ == "__main__":
