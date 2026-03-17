@@ -1,0 +1,45 @@
+{
+  "name": "submit_welfare_form",
+  "description": "練馬区福祉手当申請情報を収集",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "submission_date": { "type": "string", "description": "提出日(YYYY-MM-DD)" },
+      "recipient": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "漢字氏名" },
+          "address_ward": { "type": "string", "description": "区名" },
+          "address_detail": { "type": "string", "description": "区以降の住所" },
+          "personal_number": { "type": "string", "description": "マイナンバー" },
+          "dob": { "type": "string", "description": "生年月日(西暦YYYY-MM-DD必須)" },
+          "age": { "type": "string" },
+          "phone": { "type": "string" }
+        },
+        "required": ["name", "address_ward", "address_detail", "dob", "phone"]
+      },
+      "guardian": {
+        "type": "object",
+        "description": "保護者の情報（受給者が未成年の場合など）",
+        "properties": {
+          "furigana_name": { "type": "string", "description": "フリガナ" },
+          "name": { "type": "string", "description": "漢字" },
+          "personal_number": { "type": "string" },
+          "dob": { "type": "string", "description": "YYYY-MM-DD" },
+          "phone": { "type": "string" }
+        }
+      },
+      "bank_transfer": {
+        "type": "object",
+        "properties": {
+          "bank_type": { "type": "string", "enum": ["銀行", "信金", "信組", "農協"] },
+          "branch_code": { "type": "string" },
+          "branch_name": { "type": "string" },
+          "account_type": { "type": "string", "enum": ["普通", "当座"] },
+          "account_number": { "type": "string" },
+          "account_kana": { "type": "string", "description": "カタカナ名義" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "form_name": "submit_welfare_form",
+  "submission_id": "52060887",
+  "status": "completed",
+  "answers": {
+    "submission_date": "2026-03-16",
+    "recipient": {
+      "name": "早稲田太郎",
+      "address_ward": "練馬区",
+      "address_detail": "下社口字四の十三-四",
+      "personal_number": "12345678",
+      "dob": "2004-07-18",
+      "age": "22",
+      "phone": "012345678"
+    },
+    "guardian": null,
+    "bank_transfer": {
+      "bank_type": "銀行",
+      "branch_code": "010",
+      "branch_name": "早稲田支店",
+      "account_type": "普通",
+      "account_number": "123456",
+      "account_kana": "ワセダタロウ"
+    }
+  }
+}
