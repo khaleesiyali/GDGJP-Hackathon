@@ -11,6 +11,8 @@
   "dependencies": {
     "@livekit/components-react": "^2.9.20",
     "@types/qrcode": "^1.5.6",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.36.0",
     "livekit-client": "^2.17.3",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
@@ -18,7 +20,8 @@
     "pdf-lib": "^1.17.1",
     "qrcode": "^1.5.4",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
