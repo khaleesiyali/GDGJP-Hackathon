@@ -1,0 +1,174 @@
+{
+  "form_id": "doc_8848",
+  "form_name": "心身障害者福祉手当認定申請書",
+  "mapping": {
+    "submission_date": {
+      "type": "date_split",
+      "year": { "type": "text", "page": 1, "x": 130, "y": 695 },
+      "month": { "type": "text", "page": 1, "x": 323, "y": 695 },
+      "day": { "type": "text", "page": 1, "x": 410, "y": 695 }
+    },
+    "recipient": {
+      "name": { "type": "text", "page": 1, "x": 70, "y": 35 },
+      "address_ward": { "type": "text", "page": 1, "x": 80, "y": 45 },
+      "address_detail": { "type": "text", "page": 1, "x": 90, "y": 55 },
+      "personal_number": { 
+        "type": "char_split", 
+        "page": 1, 
+        "start_x": 120,   
+        "y": 600,         
+        "spacing_x": 15   
+        },
+      "dob": {
+        "type": "date_split",
+        "era": {
+          "type": "boolean_circle",
+          "page": 1,
+          "x": 0,
+          "y": 0,
+          "options": {
+            "T": { "page": 1, "x": 90, "y": 80 },
+            "S": { "page": 1, "x": 95, "y": 80 },
+            "H": { "page": 1, "x": 100, "y": 80 }
+          }
+        },
+        "year": { "type": "text", "page": 1, "x": 130, "y": 90 },
+        "month": { "type": "text", "page": 1, "x": 140, "y": 90 },
+        "day": { "type": "text", "page": 1, "x": 150, "y": 90 }
+      },
+      "age": { "type": "text", "page": 1, "x": 0, "y": 0 },
+      "phone": { "type": "text", "page": 1, "x": 0, "y": 0 }
+    },
+    "guardian": {
+      "furigana_name": { "type": "text", "page": 1, "x": 0, "y": 0 },
+      "name": { "type": "text", "page": 1, "x": 0, "y": 0 },
+      "personal_number": { 
+        "type": "char_split", 
+        "page": 1, 
+        "start_x": 120,   
+        "y": 600,         
+        "spacing_x": 15   
+        },
+      "dob": {
+        "type": "date_split",
+        "era": {
+          "type": "boolean_circle",
+          "page": 1,
+          "x": 0,
+          "y": 0,
+          "options": {
+            "T": { "page": 1, "x": 0, "y": 0 },
+            "S": { "page": 1, "x": 0, "y": 0 },
+            "H": { "page": 1, "x": 0, "y": 0 }
+          }
+        },
+        "year": { "type": "text", "page": 1, "x": 0, "y": 0 },
+        "month": { "type": "text", "page": 1, "x": 0, "y": 0 },
+        "day": { "type": "text", "page": 1, "x": 0, "y": 0 }
+      },
+      "phone": { "type": "text", "page": 1, "x": 0, "y": 0 }
+    },
+    "certificates": {
+      "ai_techo": {
+        "notebook_number": { "type": "text", "page": 1, "x": 0, "y": 0 },
+        "tokyo_no": { "type": "text", "page": 1, "x": 0, "y": 0 }
+      },
+      "physical_disability_certificate": {
+        "notebook_number": { "type": "text", "page": 1, "x": 0, "y": 0 },
+        "issuing_city_no": { "type": "text", "page": 1, "x": 0, "y": 0 },
+        "issuing_prefecture": { "type": "text", "page": 1, "x": 0, "y": 0 },
+        "degree": { "type": "text", "page": 1, "x": 0, "y": 0 },
+        "issue_or_renewal_date": {
+          "type": "date_split",
+          "year": { "type": "text", "page": 1, "x": 0, "y": 0 },
+          "month": { "type": "text", "page": 1, "x": 0, "y": 0 },
+          "day": { "type": "text", "page": 1, "x": 0, "y": 0 }
+        }
+      },
+      "mental_disability_certificate": {
+        "notebook_number": { "type": "text", "page": 1, "x": 0, "y": 0 },
+        "grade": { "type": "text", "page": 1, "x": 0, "y": 0 },
+        "expiry_date": {
+          "type": "date_split",
+          "year": { "type": "text", "page": 1, "x": 0, "y": 0 },
+          "month": { "type": "text", "page": 1, "x": 0, "y": 0 },
+          "day": { "type": "text", "page": 1, "x": 0, "y": 0 }
+        }
+      },
+      "special_disease": {
+        "recipient_number": { "type": "text", "page": 1, "x": 0, "y": 0 },
+        "valid_until": {
+          "type": "date_split",
+          "year": { "type": "text", "page": 1, "x": 0, "y": 0 },
+          "month": { "type": "text", "page": 1, "x": 0, "y": 0 },
+          "day": { "type": "text", "page": 1, "x": 0, "y": 0 }
+        },
+        "conditions": {
+          "cerebral_palsy": { "type": "boolean_check", "page": 1, "x": 0, "y": 0 },
+          "progressive_muscular_atrophy": { "type": "boolean_check", "page": 1, "x": 0, "y": 0 }
+        }
+      }
+    },
+    "medical": {
+      "disease_name": { "type": "text", "page": 1, "x": 0, "y": 0 }
+    },
+    "child_disability_allowance_receipt": {
+      "type": "boolean_circle",
+      "page": 1,
+      "x": 0,
+      "y": 0,
+      "options": {
+        "有": { "page": 1, "x": 0, "y": 0 },
+        "無": { "page": 1, "x": 0, "y": 0 }
+      }
+    },
+    "facility_admission": {
+      "not_in_facility": { "type": "boolean_check", "page": 1, "x": 0, "y": 0 },
+      "applying_or_planning": { "type": "boolean_check", "page": 1, "x": 0, "y": 0 },
+      "in_facility": { "type": "boolean_check", "page": 1, "x": 0, "y": 0 },
+      "facility_name": { "type": "text", "page": 1, "x": 0, "y": 0 }
+    },
+    "public_account_usage": {
+      "use_public_money_account": { "type": "boolean_check", "page": 1, "x": 0, "y": 0 }
+    },
+    "bank_transfer": {
+      "financial_institution_type": {
+        "type": "boolean_circle",
+        "page": 1,
+        "x": 0,
+        "y": 0,
+        "options": {
+          "銀行": { "page": 1, "x": 0, "y": 0 },
+          "信金": { "page": 1, "x": 0, "y": 0 },
+          "信組": { "page": 1, "x": 0, "y": 0 },
+          "農協": { "page": 1, "x": 0, "y": 0 }
+        }
+      },
+      "branch_code": { "type": "char_split", "page": 1, "start_x": 0, "y": 0, "spacing_x": 0},
+      "branch_name": { "type": "text", "page": 1, "x": 0, "y": 0 },
+      "account_type": {
+        "type": "boolean_circle",
+        "page": 1,
+        "x": 0,
+        "y": 0,
+        "options": {
+          "普通": { "page": 1, "x": 0, "y": 0 },
+          "当座": { "page": 1, "x": 0, "y": 0 }
+        }
+      },
+      "account_number": { "type": "text", "page": 1, "x": 0, "y": 0 },
+      "account_kana": { 
+        "type": "char_split_irregular", 
+        "page": 1, 
+        "y": 600,  
+        "x_coords": [120, 138, 155, 178, 195, 212, 235, 250, 268] 
+        }
+    },
+    "proxy": {
+      "name": { "type": "text", "page": 1, "x": 0, "y": 0 },
+      "address": { "type": "text", "page": 1, "x": 0, "y": 0 },
+      "phone": { "type": "text", "page": 1, "x": 0, "y": 0 },
+      "relationship": { "type": "text", "page": 1, "x": 0, "y": 0 }
+    }
+  }
+}
