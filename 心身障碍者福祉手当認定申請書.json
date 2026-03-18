@@ -6,17 +6,16 @@
     "properties": {
       "submission_date": {
         "type": "string",
-        "description": "申請書の提出日。YYYY-MM-DDの形式で入力してください。（例: 2026-03-16）"
+        "description": "申請書の提出日。（例: 2026-03-16）"
       },
       "recipient": {
         "type": "object",
         "description": "受給者（申請者本人）の基本情報",
         "properties": {
           "name": { "type": "string", "description": "受給者の氏名（漢字）" },
-          "address_ward": { "type": "string", "description": "区名（通常は「練馬区」）" },
           "address_detail": { "type": "string", "description": "練馬区以降の詳しい住所（町名、番地、マンション名など）" },
           "personal_number": { "type": "string", "description": "受給者のマイナンバー（個人番号）" },
-          "dob": { "type": "string", "description": "受給者の生年月日。必ず西暦でYYYY-MM-DDの形式に変換してください。（例: 1990-05-15）" },
+          "dob": { "type": "string", "description": "受給者の生年月日。必ず西暦での形式に変換してください。（例: 1990-05-15）" },
           "age": { "type": "string", "description": "受給者の現在の年齢" },
           "phone": { "type": "string", "description": "受給者の電話番号" }
         },
@@ -29,7 +28,7 @@
           "furigana_name": { "type": "string", "description": "保護者の氏名（フリガナ）" },
           "name": { "type": "string", "description": "保護者の氏名（漢字）" },
           "personal_number": { "type": "string", "description": "保護者のマイナンバー（個人番号）" },
-          "dob": { "type": "string", "description": "保護者の生年月日。YYYY-MM-DDの形式。" },
+          "dob": { "type": "string", "description": "保護者の生年月日。の形式。" },
           "phone": { "type": "string", "description": "保護者の電話番号" }
         }
       },
@@ -42,7 +41,7 @@
             "description": "愛の手帳（療育手帳）情報",
             "properties": {
               "notebook_number": { "type": "string", "description": "手帳番号" },
-              "tokyo_no": { "type": "string", "description": "東京都の番号" }
+              "degree": { "type": "string", "description": "知的障害の程度" }
             }
           },
           "physical_disability_certificate": {
@@ -50,10 +49,10 @@
             "description": "身体障害者手帳情報",
             "properties": {
               "notebook_number": { "type": "string", "description": "手帳番号" },
-              "issuing_city_no": { "type": "string", "description": "交付都市番号" },
               "issuing_prefecture": { "type": "string", "description": "交付都道府県" },
-              "degree": { "type": "string", "description": "障害の等級（例: 1級）" },
-              "issue_or_renewal_date": { "type": "string", "description": "交付・更新日（YYYY-MM-DD）" }
+              "Categories": { "type": "string", "description": "障害の種類" },
+              "level": { "type": "string", "description": "障害の等級（例: 1）" },
+              "issue_or_renewal_date": { "type": "string", "description": "交付・更新日" }
             }
           },
           "mental_disability_certificate": {
@@ -62,7 +61,7 @@
             "properties": {
               "notebook_number": { "type": "string", "description": "手帳番号" },
               "grade": { "type": "string", "description": "等級" },
-              "expiry_date": { "type": "string", "description": "有効期限（YYYY-MM-DD）" }
+              "expiry_date": { "type": "string", "description": "有効期限" }
             }
           },
           "special_disease": {
@@ -70,7 +69,7 @@
             "description": "特殊疾病情報",
             "properties": {
               "recipient_number": { "type": "string", "description": "受給者番号" },
-              "valid_until": { "type": "string", "description": "有効期限（YYYY-MM-DD）" },
+              "valid_until": { "type": "string", "description": "有効期限" },
               "cerebral_palsy": { "type": "boolean", "description": "脳性マヒの場合はtrue" },
               "progressive_muscular_atrophy": { "type": "boolean", "description": "進行性筋萎縮症の場合はtrue" }
             }
@@ -85,7 +84,7 @@
       },
       "child_disability_allowance_receipt": {
         "type": "string",
-        "enum": ["有", "無"],
+        "enum": ["有", "無", "申請予定", "申請中"],
         "description": "児童育成（障害）手当を受給しているかどうか"
       },
       "facility_admission": {
@@ -94,7 +93,7 @@
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["入所していない", "申請中・申請予定", "入所中"],
+            "enum": ["入所していない", "入所中"],
             "description": "現在の施設入所ステータス"
           },
           "facility_name": { "type": "string", "description": "入所中の場合の施設名" }
@@ -108,6 +107,7 @@
         "type": "object",
         "description": "振込先金融機関の情報",
         "properties": {
+          "financial_institution_": {"type": "string", "description": "銀行名"},
           "financial_institution_type": {
             "type": "string",
             "enum": ["銀行", "信金", "信組", "農協"],
@@ -115,13 +115,8 @@
           },
           "branch_code": { "type": "string", "description": "支店コード" },
           "branch_name": { "type": "string", "description": "支店名" },
-          "account_type": {
-            "type": "string",
-            "enum": ["普通", "当座"],
-            "description": "預金種別"
-          },
           "account_number": { "type": "string", "description": "口座番号" },
-          "account_holder_kana": { "type": "string", "description": "口座名義（カタカナ）" }
+          "account_kana": { "type": "string", "description": "口座名義（カタカナ）" }
         }
       },
       "proxy": {

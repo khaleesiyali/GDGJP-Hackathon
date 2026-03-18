@@ -1,0 +1,169 @@
+{
+  "form_id": "doc_8848",
+  "form_name": "心身障害者福祉手当認定申請書",
+  "mapping": {
+    "submission_date": {
+      "type": "date_split",
+      "year": { "type": "text", "page": 1, "x": 424, "y": 717 },
+      "month": { "type": "text", "page": 1, "x": 468, "y": 717 },
+      "day": { "type": "text", "page": 1, "x": 499, "y": 717 }
+    },
+    "recipient": {
+      "name": { "type": "text", "page": 1, "x": 130, "y": 687 },
+      "address_detail": { "type": "text", "page": 1, "x": 130, "y": 646 },
+      "personal_number": { 
+        "type": "char_split", 
+        "page": 1, 
+        "start_x": 325,   
+        "y": 687,         
+        "spacing_x": 19   
+        },
+      "dob": {
+        "type": "date_split_era",
+        "era": {
+          "type": "boolean_circle",
+          "page": 1,
+          "x": 0,
+          "y": 0,
+          "options": {
+            "T": { "page": 1, "x": 383, "y": 669 },
+            "S": { "page": 1, "x": 394, "y": 669 },
+            "H": { "page": 1, "x": 404, "y": 669 }
+          }
+        },
+        "year": { "type": "text", "page": 1, "x": 413, "y": 666 },
+        "month": { "type": "text", "page": 1, "x": 440, "y": 666 },
+        "day": { "type": "text", "page": 1, "x": 469, "y": 666 }
+      },
+      "age": { "type": "text", "page": 1, "x": 0, "y": 0 },
+      "phone": { "type": "text", "page": 1, "x": 379, "y": 644 }
+    },
+    "guardian": {
+      "furigana_name": { "type": "text", "page": 1, "x": 0, "y": 0 },
+      "name": { "type": "text", "page": 1, "x": 0, "y": 0 },
+      "personal_number": { 
+        "type": "char_split", 
+        "page": 1, 
+        "start_x": 120,   
+        "y": 600,         
+        "spacing_x": 19   
+        },
+      "dob": {
+        "type": "date_split",
+        "era": {
+          "type": "boolean_circle",
+          "page": 1,
+          "x": 0,
+          "y": 0,
+          "options": {
+            "T": { "page": 1, "x": 0, "y": 0 },
+            "S": { "page": 1, "x": 0, "y": 0 },
+            "H": { "page": 1, "x": 0, "y": 0 }
+          }
+        },
+        "year": { "type": "text", "page": 1, "x": 0, "y": 0 },
+        "month": { "type": "text", "page": 1, "x": 0, "y": 0 },
+        "day": { "type": "text", "page": 1, "x": 0, "y": 0 }
+      },
+      "phone": { "type": "text", "page": 1, "x": 0, "y": 0 }
+    },
+    "certificates": {
+      "ai_techo": {
+        "notebook_number": { "type": "text", "page": 1, "x": 260, "y": 553 },
+        "Degree": { "type": "text", "page": 1, "x": 469, "y": 553 }
+      },
+      "physical_disability_certificate": {
+        "notebook_number": { "type": "text", "page": 1, "x": 260, "y": 535 },
+        "issuing_prefecture": { "type": "text", "page": 1, "x": 138, "y": 523 },
+        "Categories": {"type": "text", "page": 1, "x": 417, "y": 526},
+        "level": { "type": "text", "page": 1, "x": 473, "y": 526 },
+        "issue_or_renewal_date": {
+          "type": "date_split",
+          "year": { "type": "text", "page": 1, "x": 234, "y": 518 },
+          "month": { "type": "text", "page": 1, "x": 275, "y": 518 },
+          "day": { "type": "text", "page": 1, "x": 306, "y": 518 }
+        }
+      },
+      "mental_disability_certificate": {
+        "notebook_number": { "type": "text", "page": 1, "x": 190, "y": 499 },
+        "grade": { "type": "text", "page": 1, "x": 452, "y": 490 },
+        "expiry_date": {
+          "type": "date_split",
+          "year": { "type": "text", "page": 1, "x": 295, "y": 480 },
+          "month": { "type": "text", "page": 1, "x": 339, "y": 480 },
+          "day": { "type": "text", "page": 1, "x": 370, "y": 480 }
+        }
+      },
+      "special_disease": {
+        "Name of disease": {"type": "text", "page": 1, "x": 155, "y": 459 },
+        "recipient_number": { "type": "text", "page": 1, "x": 206, "y": 441 },
+        "valid_until": {
+          "type": "date_split",
+          "year": { "type": "text", "page": 1, "x": 253, "y": 441 },
+          "month": { "type": "text", "page": 1, "x": 295, "y": 441 },
+          "day": { "type": "text", "page": 1, "x": 329, "y": 441 }
+        },
+        "conditions": {
+          "cerebral_palsy": { "type": "boolean_check", "page": 1, "x": 411, "y": 464 },
+          "progressive_muscular_atrophy": { "type": "boolean_check", "page": 1, "x": 411, "y": 448 }
+        }
+      }
+    },
+    "child_disability_allowance_receipt": {
+      "type": "boolean_circle",
+      "page": 1,
+      "x": 0,
+      "y": 0,
+      "options": {
+        "有": { "page": 1, "x": 258, "y": 429 },
+        "無": { "page": 1, "x": 298, "y": 429 },
+        "申請中": { "page": 1, "x": 354, "y": 429 },
+        "申請予定": {"page": 1, "x": 420, "y": 429 }
+      }
+    },
+    "facility_admission": {
+      "type":"boolean_check",
+      "page": 1,
+      "x" : 0,
+      "y": 0,
+      "options":{
+      "not_in_facility": {"page": 1, "x": 297, "y": 410 },
+      "in_facility": {"page": 1, "x": 359, "y": 0 }
+      },
+      "facility_name": { "type": "text", "page": 1, "x": 434, "y": 403 }
+    },
+    "public_account_usage": {
+      "use_public_money_account": { "type": "boolean_check", "page": 1, "x": 202, "y": 387 }
+    },
+    "bank_transfer": {
+      "financial_institution_": { "type": "text", "page": 1, "x": 196, "y": 356},
+      "financial_institution_type": {
+        "type": "boolean_circle",
+        "page": 1,
+        "x": 0,
+        "y": 0,
+        "options": {
+          "銀行": { "page": 1, "x": 304, "y": 368 },
+          "信金": { "page": 1, "x": 337, "y": 368 },
+          "信組": { "page": 1, "x": 304, "y": 350 },
+          "農協": { "page": 1, "x": 337, "y": 350 }
+        }
+      },
+      "branch_code": { "type": "text", "page": 1, "x": 480, "y": 365},
+      "branch_name": { "type": "text", "page": 1, "x": 392, "y": 348},
+      "account_number": { "type": "char_split", "page": 1, "start_x": 280, "y": 322, "spacing_x":28 },
+      "account_kana": { 
+        "type": "char_split_irregular", 
+        "page": 1, 
+        "y": 294,  
+        "x_coords": [171, 196, 215, 238, 255, 275, 305, 250, 268] 
+        }
+    },
+    "proxy": {
+      "name": { "type": "text", "page": 1, "x": 156, "y": 264 },
+      "address": { "type": "text", "page": 1, "x": 156, "y": 254 },
+      "phone": { "type": "text", "page": 1, "x": 389, "y": 364 },
+      "relationship": { "type": "text", "page": 1, "x": 0, "y": 0 }
+    }
+  }
+}
