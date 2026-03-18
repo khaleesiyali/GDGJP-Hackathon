@@ -1,4 +1,4 @@
-Vision.py
+**Vision.py**
 1. load_form_from_db(form_id: str)
 
 Role: The Database Fetcher.
@@ -37,9 +37,8 @@ What it does: This is the main switch that turns everything on. It connects to t
 
 
 
-
-pdf_generate.py
-- 1. convert_to_jp_era(year, month, day)
+**pdf_generate.py**
+1. convert_to_jp_era(year, month, day)
 
 Role: The Date Translator.
 
@@ -65,19 +64,16 @@ What it does: It takes the transparent canvas full of text that you just drew, a
 
 
 
-server.py
+**server.py**
 - Connecting Frontend to Backend. Generate token for livekit API keys
 
-blank_form
+**blank_form**
 - Contain the PDF (Forms) we use and perform testing on.
 
-mock_form.json
-- A shorter version of Agent JSON we will use to get user information. (for testing purpose)
-
-mock_form2.json
+**心身障害者福祉手当認定申請書.json**
 - The original version of Agent JSON we will use to get user information
 
-mock_Mapping.json
+**心身障害者福祉手当認定申請書_Mapping.json**
 - The JSON we will use to map and draw the PDF
 
 result_f996172
