@@ -58,13 +58,38 @@ def smart_fill_pdf(answers, mapping, c):
             # 1. General text (type=text)
             if isinstance(rule, dict) and rule.get("type") == "text" and value:
                 c.drawString(rule["x"], rule["y"], str(value))
-                
-            # 2. Spilting the date into YYYY MM DD (type = date_spilt)
             elif rule.get("type") == "date_split" and value:
                 year, month, day = value.split("-")
-                era_code, jp_year = convert_to_jp_era(year, month, day)
-                c.drawString(rule["year"]["x"], rule["year"]["y"], jp_year)
-                # ... 省略月、日、圈圈的绘制 ...
+                if "year" in rule:
+                    c.drawString(rule["year"]["x"], rule["year"]["y"], year)
+                if "month" in rule:
+                    c.drawString(rule["month"]["x"], rule["month"]["y"], month)
+                if "day" in rule:
+                    c.drawString(rule["day"]["x"], rule["day"]["y"], day)
+            # 2. Spilting the date into YYYY MM DD (type = date_split)
+            elif rule.get("type") == "date_split_era" and value:
+                # 加个 try 防止用户没填完整的日期导致报错
+                try:
+                    year, month, day = value.split("-")
+                    era_code, jp_year = convert_to_jp_era(year, month, day)
+                    
+                    # 1. 画年
+                    if "year" in rule:
+                        c.drawString(rule["year"]["x"], rule["year"]["y"], jp_year)
+                    # 2. 画月
+                    if "month" in rule:
+                        c.drawString(rule["month"]["x"], rule["month"]["y"], month)
+                    # 3. 画日
+                    if "day" in rule:
+                        c.drawString(rule["day"]["x"], rule["day"]["y"], day)
+                        
+                    # 4. 画元号圈圈 (era)
+                    if "era" in rule and "options" in rule["era"] and era_code in rule["era"]["options"]:
+                        cx = rule["era"]["options"][era_code]["x"]
+                        cy = rule["era"]["options"][era_code]["y"]
+                        c.circle(cx, cy, 10, stroke=1, fill=0)
+                except Exception as e:
+                    print(f"⚠️ 日期解析出错: {value}, 错误信息: {e}")
 
             # 3. For space that need separate character (type = char_spilt)
             elif rule.get("type") == "char_split" and value:
@@ -127,5 +152,5 @@ def merge_pdfs(blank_form_path, text_layer_path, final_output_path):
 
 if __name__ == "__main__":
     # We need to be result json here
-    fill_pdf_data("result_52060887.json", "mock_Mapping.json", "transparent_text.pdf")
+    fill_pdf_data("result_f996172c.json", "mock_Mapping.json", "transparent_text.pdf")
     merge_pdfs("blank_form.pdf", "transparent_text.pdf", "Final_Filled_Application.pdf")

@@ -1,0 +1,49 @@
+{
+  "form_name": "submit_nerima_welfare_form",
+  "submission_id": "f996172c",
+  "status": "completed",
+  "answers": {
+    "submission_date": "2026-03-18",
+    "recipient": {
+      "name": "早稲田太郎",
+      "address_detail": "練馬 3-13-14",
+      "personal_number": "1234567",
+      "dob": "2004-07-18",
+      "age": "21",
+      "phone": "987-5666-321"
+    },
+    "guardian": null,
+    "certificates": {
+      "ai_techo": {
+        "notebook_number": "1234567",
+        "degree": "1"
+      },
+      "physical_disability_certificate": {
+        "notebook_number":"1234567",
+        "issuing_prefecture": "東京都",
+        "Categories": "視覚",
+        "level": "1",
+        "issue_or_renewal_date": "2026-06-06"},
+      "mental_disability_certificate": null,
+      "special_disease": null
+    },
+    "medical": {
+      "disease_name": ""
+    },
+    "child_disability_allowance_receipt": "無",
+    "facility_admission": {
+      "status": "入所していない",
+      "facility_name": ""
+    },
+    "public_account_usage": false,
+    "bank_transfer": {
+      "financial_institution_":"三井住友",
+      "financial_institution_type": "銀行",
+      "branch_code": "010",
+      "branch_name": "早稲田",
+      "account_number": "123456",
+      "account_kana": "ワセダ　タロウ"
+    },
+    "proxy": null
+  }
+}
