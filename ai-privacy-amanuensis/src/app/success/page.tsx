@@ -142,20 +142,20 @@ export default function Success() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.8 }}
-        className="flex gap-4"
+        className="w-full max-w-md flex flex-col gap-4"
       >
         <button
           onClick={() => router.push('/')}
-          className="h-14 bg-slate-800 text-yellow-400 px-8 rounded-full flex items-center justify-center gap-2 font-bold border-2 border-yellow-400 hover:bg-yellow-400 hover:text-slate-900 transition-all"
+          className="h-14 bg-slate-800 text-yellow-400 px-8 rounded-full flex items-center justify-center gap-2 font-bold border-2 border-yellow-400 hover:bg-yellow-400 hover:text-slate-900 transition-all whitespace-nowrap"
         >
           <Home size={20} />
-          ホームに戻る
+          <span>ホームに戻る</span>
         </button>
         <button
           onClick={() => router.push('/form')}
-          className="h-14 bg-yellow-400/20 text-yellow-400 px-8 rounded-full flex items-center justify-center gap-2 font-bold border-2 border-yellow-400 hover:bg-yellow-400 hover:text-slate-900 transition-all"
+          className="h-14 bg-yellow-400/20 text-yellow-400 px-8 rounded-full flex items-center justify-center gap-2 font-bold border-2 border-yellow-400 hover:bg-yellow-400 hover:text-slate-900 transition-all whitespace-nowrap"
         >
-          別のフォームを入力
+          <span>別のフォームを入力</span>
         </button>
       </motion.div>
 

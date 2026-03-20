@@ -55,6 +55,11 @@ function FormSession({
   
   const toggleMic = async () => {
     if (localParticipant) {
+      if (typeof navigator === "undefined" || !navigator.mediaDevices) {
+        alert("エラー: マイクを使用するにはHTTPSで接続する必要があります。(iOSのセキュリティ制限)");
+        return;
+      }
+      
       if (isMicOn) {
         await localParticipant.setMicrophoneEnabled(false);
       } else {

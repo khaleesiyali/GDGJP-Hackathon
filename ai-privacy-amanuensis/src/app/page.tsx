@@ -41,7 +41,17 @@ function HubSession({
   // As soon as room mounts, turn on mic so agent can hear "hello"
   useEffect(() => {
     if (localParticipant && !isMicOn && agentState !== "disconnected") {
-      localParticipant.setMicrophoneEnabled(true).catch(console.error);
+      try {
+        if (typeof navigator !== "undefined" && navigator.mediaDevices) {
+          localParticipant.setMicrophoneEnabled(true).catch((error) => {
+            console.error('Microphone enable error:', error);
+          });
+        } else {
+          console.error("Microphone access blocked: You must use HTTPS or localhost.");
+        }
+      } catch (error) {
+        console.error('Error enabling microphone:', error);
+      }
     }
   }, [localParticipant, isMicOn, agentState]);
 

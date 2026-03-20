@@ -109,13 +109,31 @@ export default function FormPage() {
     loadFormSchema();
   }, []);
 
-  // Text-to-speech function
+  // Text-to-speech function (iOS optimized)
   const speakText = (text: string) => {
     if ('speechSynthesis' in window) {
-      speechSynthesisRef.current = new SpeechSynthesisUtterance(text);
-      speechSynthesisRef.current.lang = 'ja-JP';
-      speechSynthesisRef.current.rate = 0.9;
-      window.speechSynthesis.speak(speechSynthesisRef.current);
+      try {
+        // Cancel any ongoing speech
+        window.speechSynthesis.cancel();
+        
+        // Create utterance
+        speechSynthesisRef.current = new SpeechSynthesisUtterance(text);
+        speechSynthesisRef.current.lang = 'ja-JP';
+        speechSynthesisRef.current.rate = 0.85; // Slightly slower for iOS clarity
+        speechSynthesisRef.current.pitch = 1.0;
+        speechSynthesisRef.current.volume = 1.0;
+        
+        // iOS-specific: add a small delay before speaking
+        setTimeout(() => {
+          try {
+            window.speechSynthesis.speak(speechSynthesisRef.current!);
+          } catch (error) {
+            console.error('Speech synthesis error:', error);
+          }
+        }, 100);
+      } catch (error) {
+        console.error('Text-to-speech setup error:', error);
+      }
     }
   };
 
@@ -129,14 +147,18 @@ export default function FormPage() {
     );
 
     if (remainingFields.length === 0) {
-      // All questions answered, redirect to success with form data
+      // All questions answered, redirect to honninkakunin for identity verification
       const submissionId = `${Date.now()}`;
       const queryParams = new URLSearchParams({
         formName: formName,
         submissionId: submissionId,
         formData: JSON.stringify(formData)
       });
-      router.push(`/success?${queryParams.toString()}`);
+      
+      // Brief pause before redirecting
+      setTimeout(() => {
+        router.push(`/honninkakunin?${queryParams.toString()}`);
+      }, 1000);
       return;
     }
 
@@ -173,28 +195,50 @@ export default function FormPage() {
     setInput("");
     setIsLoading(true);
 
-    // Acknowledge the answer
+    // Acknowledge the answer with smooth transition
+    const responses = [
+      "かしこまりました。ありがとうございます。",
+      "了解いたしました。",
+      "ご回答ありがとうございます。"
+    ];
+    const response = responses[Math.floor(Math.random() * responses.length)];
+    
+    // Speak acknowledgement
+    speakText(response);
+    
+    // Add acknowledgement to history
+    setConversationHistory((prev) => [
+      ...prev,
+      { role: "agent", message: response }
+    ]);
+    
+    setIsLoading(false);
+    
+    // Auto advance to next question with smooth delay for user to see the response
+    // Then ask next question immediately
     setTimeout(() => {
-      const responses = [
-        "かしこまりました。ありがとうございます。",
-        "了解いたしました。",
-        "ご回答ありがとうございます。"
-      ];
-      const response = responses[Math.floor(Math.random() * responses.length)];
-      setConversationHistory((prev) => [
-        ...prev,
-        { role: "agent", message: response }
-      ]);
-      setIsLoading(false);
-      
-      // Ask next question after a short delay
-      setTimeout(() => askNextQuestion(), 1000);
-    }, 500);
+      askNextQuestion();
+    }, 1200);
   };
 
   // Handle skip
   const handleSkip = () => {
-    askNextQuestion();
+    // Speak skip message
+    speakText("この質問をスキップします。");
+    
+    // Add to history
+    setConversationHistory((prev) => [
+      ...prev,
+      { role: "agent", message: "この質問をスキップします。" }
+    ]);
+    
+    // Clear input
+    setInput("");
+    
+    // Auto advance after brief pause
+    setTimeout(() => {
+      askNextQuestion();
+    }, 800);
   };
 
   const handleDownloadPDF = async () => {

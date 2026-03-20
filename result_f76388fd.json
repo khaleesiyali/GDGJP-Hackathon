@@ -1,0 +1,24 @@
+{
+  "form_name": "submit_nerima_welfare_form",
+  "submission_id": "f76388fd",
+  "status": "completed",
+  "answers": {
+    "submission_date": "2026-03-20",
+    "recipient": {
+      "name": "早稲田太郎",
+      "address_detail": "練馬一の三の十四",
+      "personal_number": "1234567",
+      "dob": "",
+      "age": "",
+      "phone": ""
+    },
+    "guardian": null,
+    "certificates": {},
+    "medical": {},
+    "child_disability_allowance_receipt": null,
+    "facility_admission": null,
+    "public_account_usage": null,
+    "bank_transfer": {},
+    "proxy": null
+  }
+}
