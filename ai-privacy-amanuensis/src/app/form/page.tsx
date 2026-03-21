@@ -188,7 +188,8 @@ export default function FormView() {
            sessionStorage.setItem("amanai_pt_name", ptName);
         }
         // Use our new local Next.js API route instead of the external python server
-        const response = await fetch(`/api/token?room_name=form-session&participant_name=${ptName}`);
+        // ✅ 抢救代码 (加上 Date.now()，每次点击都会生成类似 form-session-1711044678 的全新房间)
+        const response = await fetch(`/api/token?room_name=form-session-${Date.now()}&participant_name=${ptName}`);
         
         if (!response.ok) throw new Error("Backend error fetching token");
         

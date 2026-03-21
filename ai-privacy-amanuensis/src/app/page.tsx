@@ -208,7 +208,7 @@ export default function Hub() {
         sessionStorage.setItem("amanai_pt_name", ptName);
       }
       
-      const response = await fetch(`/api/token?room_name=form-session&participant_name=${ptName}`);
+      const response = await fetch(`/api/token?room_name=form-session-${Date.now()}&participant_name=${ptName}`);
       if (!response.ok) throw new Error("Failed token fetch");
       const data = await response.json();
       setToken(data.token);

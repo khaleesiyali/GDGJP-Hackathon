@@ -9,12 +9,12 @@ import os
 font_path = os.path.join("Font", "NotoSansJP-Medium.ttf")
 try:
     pdfmetrics.registerFont(TTFont('NotoSans', font_path))
-    print("✅ Noto Sans 字体注册成功")
+    print("✅ Noto Sans Loading completed")
 except Exception as e:
-    print(f"❌ 字体加载失败: {e}")
+    print(f"❌ Loading failed: {e}")
 
 def convert_to_jp_era(year, month, day):
-    """将西历转换为和历 (黑客松简易版)"""
+    """Changing YMD into Japanese era"""
     y, m, d = int(year), int(month), int(day)
     if y >= 2019: 
         return "R", str(y - 2018)  # Reiwa
@@ -40,7 +40,7 @@ def fill_pdf_data(user_answers_path, mapping_json_path, transparent_pdf_path="tr
     
     # 4. Save as transparent_pdf
     c.save()
-    print(f"✅ 成功生成透明文字层: {transparent_pdf_path}")
+    print(f"✅ transparent Layer: {transparent_pdf_path}")
 
 
 def smart_fill_pdf(answers, mapping, c):
@@ -68,22 +68,22 @@ def smart_fill_pdf(answers, mapping, c):
                     c.drawString(rule["day"]["x"], rule["day"]["y"], day)
             # 2. Spilting the date into YYYY MM DD (type = date_split)
             elif rule.get("type") == "date_split_era" and value:
-                # 加个 try 防止用户没填完整的日期导致报错
+                # In case the year month day is not complete
                 try:
                     year, month, day = value.split("-")
                     era_code, jp_year = convert_to_jp_era(year, month, day)
                     
-                    # 1. 画年
+                    # 1. year
                     if "year" in rule:
                         c.drawString(rule["year"]["x"], rule["year"]["y"], jp_year)
-                    # 2. 画月
+                    # 2. Month
                     if "month" in rule:
                         c.drawString(rule["month"]["x"], rule["month"]["y"], month)
-                    # 3. 画日
+                    # 3. Day
                     if "day" in rule:
                         c.drawString(rule["day"]["x"], rule["day"]["y"], day)
                         
-                    # 4. 画元号圈圈 (era)
+                    # 4. Era
                     if "era" in rule and "options" in rule["era"] and era_code in rule["era"]["options"]:
                         cx = rule["era"]["options"][era_code]["x"]
                         cy = rule["era"]["options"][era_code]["y"]
@@ -93,7 +93,6 @@ def smart_fill_pdf(answers, mapping, c):
 
             # 3. For space that need separate character (type = char_spilt)
             elif rule.get("type") == "char_split" and value:
-                # 把用户传来的 "123456789012" 转成字符串，防止报错
                 str_value = str(value) 
                 start_x = rule["start_x"]
                 spacing_x = rule["spacing_x"]
@@ -103,7 +102,7 @@ def smart_fill_pdf(answers, mapping, c):
                 for i, char in enumerate(str_value):
                     current_x = start_x + (i * spacing_x)
                     c.drawString(current_x, y, char)
-                    print(f"📍 画入单字: {char} 在坐标 (x:{current_x}, y:{y})")
+                    print(f"📍 Draw: {char} at (x:{current_x}, y:{y})")
 
             # 4. Circle and Check (type = boolean_circle)
             elif rule.get("type") == "boolean_circle" and value or rule.get("type")=="boolean_check" and value:
@@ -123,13 +122,13 @@ def smart_fill_pdf(answers, mapping, c):
                     if i < len(x_coords): 
                         current_x = x_coords[i]
                         c.drawString(current_x, y, char)
-                        print(f"📍 画入不规则单字: {char} 在坐标 (x:{current_x}, y:{y})")
+                        print(f"📍 Draw irregular: {char} at (x:{current_x}, y:{y})")
                     else:
-                        print(f"⚠️ 警告：名字太长，超出了格子限制！丢弃字符: {char}")
+                        print(f"⚠️ length exceeded, drop: {char}")
     process_node(answers, mapping)
 
 def merge_pdfs(blank_form_path, text_layer_path, final_output_path):
-    """将透明文字层，像印章一样盖在空白表格上，生成最终的全新 PDF"""
+    """Generating New PDF"""
     # Read empty form
     original_pdf = PdfReader(blank_form_path)
     text_pdf = PdfReader(text_layer_path)
@@ -146,11 +145,11 @@ def merge_pdfs(blank_form_path, text_layer_path, final_output_path):
     # Generate new User PDF
     with open(final_output_path, "wb") as f:
         writer.write(f)
-    print(f"🎉 大功告成！最终生成的申请表已保存为: {final_output_path}")
+    print(f"🎉 The new pdf is: {final_output_path}")
 
     
 
 if __name__ == "__main__":
     # We need to be result json here
-    fill_pdf_data("result_f996172c.json", "mock_Mapping.json", "transparent_text.pdf")
+    fill_pdf_data("result_f996172c.json", "心身障碍者福祉手当認定申請書.json", "transparent_text.pdf")
     merge_pdfs("blank_form.pdf", "transparent_text.pdf", "Final_Filled_Application.pdf")

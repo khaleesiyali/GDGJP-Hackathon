@@ -1,0 +1,39 @@
+{
+  "form_name": "submit_nerima_welfare_form",
+  "submission_id": "b08fb08f",
+  "status": "completed",
+  "answers": {
+    "submission_date": "2026-03-21",
+    "recipient": {
+      "name": "早稲田太郎",
+      "address_ward": "練馬区",
+      "address_detail": "練馬三丁目十三番九四",
+      "personal_number": "12345678",
+      "dob": "2004-07-18",
+      "age": "21",
+      "phone": "123456789"
+    },
+    "guardian": null,
+    "certificates": {
+      "ai_techo": {
+        "notebook_number": "12345",
+        "degree": "一級"
+      },
+      "physical_disability_certificate": {
+        "notebook_number": "123456",
+        "issuing_prefecture": "東京都",
+        "Categories": "資格証書の資格",
+        "level": "1",
+        "issue_or_renewal_date": "2026-03"
+      },
+      "mental_disability_certificate": null,
+      "special_disease": null
+    },
+    "medical": null,
+    "child_disability_allowance_receipt": null,
+    "facility_admission": null,
+    "public_account_usage": null,
+    "bank_transfer": null,
+    "proxy": null
+  }
+}

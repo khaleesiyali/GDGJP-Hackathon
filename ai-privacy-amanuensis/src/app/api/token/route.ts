@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       identity: participantName,
     });
 
-    at.addGrant({ roomJoin: true, room: roomName });
+    at.addGrant({ roomJoin: true, room: roomName, canPublish: true, canSubscribe: true });
 
     return NextResponse.json({ token: await at.toJwt() });
   } catch (error) {
