@@ -5,41 +5,20 @@ import { Mic, MicOff, ArrowRight, CornerDownLeft } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
-  LiveKitRoom, 
-  RoomAudioRenderer, 
   useLocalParticipant,
   useVoiceAssistant
 } from "@livekit/components-react";
 import "@livekit/components-styles";
-
-const QUESTIONS = [
-  {
-    title: "ご用件について",
-    description: "本日はどのようなご用件でしょうか？詳細をお話しください。"
-  },
-  {
-    title: "ご住所",
-    description: "次にご住所についてお聞きしたいのですが、いかがですか？"
-  },
-  {
-    title: "その他ご不明点",
-    description: "他にご不明な点はございますか？"
-  },
-  {
-    title: "情報の確認",
-    description: "素晴らしい。それでは情報を確認させていただきます。準備はよろしいですか？"
-  }
-];
+import { useAmanAI } from "@/components/AmanAIContext";
 
 // Inner Room Component that has access to LiveKit hooks
 function FormSession({ 
-  currentIdx, 
   handleNext 
 }: { 
-  currentIdx: number, 
   handleNext: () => void 
 }) {
   const { localParticipant } = useLocalParticipant();
+  const { currentQuestion } = useAmanAI();
   let voiceAssistant;
   try {
     // Attempt to use the voice assistant hook if available
@@ -68,8 +47,6 @@ function FormSession({
     }
   };
 
-  const currentQ = QUESTIONS[currentIdx];
-
   // Determine UI Status
   let statusText = "マイクオフ";
   if (isMicOn) {
@@ -86,8 +63,6 @@ function FormSession({
 
   return (
     <div className="flex flex-col h-full w-full justify-between bg-[var(--brand-bg)] p-6 transition-colors duration-300">
-      <RoomAudioRenderer />
-      
       {/* Header */}
       <header className="w-full flex justify-between items-center mb-6 mt-6 text-[var(--brand-primary)]">
         <Link 
@@ -98,10 +73,6 @@ function FormSession({
           <CornerDownLeft size={24} />
         </Link>
         <div className="flex flex-col items-end gap-2">
-          <div className="flex items-center gap-2 px-4 py-1.5 border-2 border-[var(--brand-border)] rounded-full bg-[var(--brand-bg)]" aria-label={`進捗: ${currentIdx + 1} / ${QUESTIONS.length}`}>
-            <span className="font-bold text-sm tracking-widest text-[var(--brand-primary)]">{currentIdx + 1} / {QUESTIONS.length}</span>
-          </div>
-          
           <div className="text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5 opacity-80" aria-live="polite">
             <div className="w-2 h-2 bg-green-500 rounded-full" />
             <span className="text-green-500 text-opacity-90" aria-label="バックエンド接続完了">接続完了</span>
@@ -116,10 +87,10 @@ function FormSession({
         </h2>
         <div className="w-full bg-[var(--brand-primary)] text-[var(--brand-bg)] p-8 rounded-3xl shadow-[0_10px_30px_var(--brand-border)] transform transition-all duration-300">
           <h1 className="text-4xl font-extrabold leading-tight tracking-tight">
-            {currentQ.title}
+            {currentQuestion.title}
           </h1>
           <p className="mt-6 text-lg font-medium opacity-80 leading-snug">
-            {currentQ.description}
+            {currentQuestion.description}
           </p>
         </div>
       </main>
@@ -175,42 +146,11 @@ function FormSession({
 // Main View wrapping the Session in a LiveKitRoom
 export default function FormView() {
   const router = useRouter();
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [token, setToken] = useState("");
-  const [isConnecting, setIsConnecting] = useState(true);
-
-  useEffect(() => {
-    const getToken = async () => {
-      try {
-        let ptName = sessionStorage.getItem("amanai_pt_name");
-        if (!ptName) {
-           ptName = `user-${Math.random().toString(36).substring(7)}`;
-           sessionStorage.setItem("amanai_pt_name", ptName);
-        }
-        // Use our new local Next.js API route instead of the external python server
-        // ✅ 抢救代码 (加上 Date.now()，每次点击都会生成类似 form-session-1711044678 的全新房间)
-        const response = await fetch(`/api/token?room_name=form-session-${Date.now()}&participant_name=${ptName}`);
-        
-        if (!response.ok) throw new Error("Backend error fetching token");
-        
-        const data = await response.json();
-        setToken(data.token);
-      } catch (error) {
-        console.error("Token fetch failed:", error);
-        setToken(""); // We actually require a token to connect to LiveKit
-      } finally {
-        setIsConnecting(false);
-      }
-    };
-    getToken();
-  }, []);
+  const { token, isConnecting } = useAmanAI();
 
   const handleNext = () => {
-    if (currentIdx < QUESTIONS.length - 1) {
-      setCurrentIdx(currentIdx + 1);
-    } else {
-      router.push("/success");
-    }
+    // We now just manually go to success since the AI drives the progress entirely
+    router.push("/success");
   };
 
   const liveKitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || "wss://jing-139sv34p.livekit.cloud";
@@ -238,15 +178,8 @@ export default function FormView() {
   }
 
   return (
-    <LiveKitRoom
-      serverUrl={liveKitUrl}
-      token={token}
-      connect={true}
-      audio={true} 
-      video={false}
-      className="h-screen w-full"
-    >
-      <FormSession currentIdx={currentIdx} handleNext={handleNext} />
-    </LiveKitRoom>
+    <div className="h-screen w-full relative z-10">
+      <FormSession handleNext={handleNext} />
+    </div>
   );
 }

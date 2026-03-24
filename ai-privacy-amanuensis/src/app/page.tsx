@@ -6,27 +6,20 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/components/ThemeProvider";
 import { 
-  LiveKitRoom, 
-  RoomAudioRenderer, 
   useLocalParticipant,
-  useVoiceAssistant,
-  useRoomContext
+  useVoiceAssistant
 } from "@livekit/components-react";
-import { RoomEvent } from "livekit-client";
-import { useRouter } from "next/navigation";
 import "@livekit/components-styles";
+import { useAmanAI } from "@/components/AmanAIContext";
 
 // The interactive inner component logic
 function HubSession({ 
-  shouldDisconnect,
-  setHasConnected 
+  shouldDisconnect
 }: { 
-  shouldDisconnect: boolean,
-  setHasConnected: (v: boolean) => void 
+  shouldDisconnect: boolean 
 }) {
-  const room = useRoomContext();
-  const router = useRouter();
   const { localParticipant } = useLocalParticipant();
+  const { setHasConnected } = useAmanAI();
   let voiceAssistant;
   try {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -64,26 +57,6 @@ function HubSession({
       localParticipant.setMicrophoneEnabled(false);
     }
   }, [shouldDisconnect, localParticipant]);
-
-  // Voice Navigation via DataChannel
-  useEffect(() => {
-    const handleData = (payload: Uint8Array) => {
-      try {
-        const text = new TextDecoder().decode(payload);
-        const data = JSON.parse(text);
-        if (data.action === "navigate" && data.destination) {
-          router.push(data.destination);
-        }
-      } catch (e) {
-        // ignore non-json messages
-      }
-    };
-
-    room.on(RoomEvent.DataReceived, handleData);
-    return () => {
-      room.off(RoomEvent.DataReceived, handleData);
-    };
-  }, [room, router]);
 
   // Map Agent state to our visually custom Orb states
   let orbVisual: "idle" | "listening" | "processing" | "success" = "idle";
@@ -131,7 +104,6 @@ function HubSession({
 
   return (
     <>
-      <RoomAudioRenderer />
       {/* Background ripples */}
       {orbVisual === "idle" && (
         <div className="absolute w-48 h-48 bg-[var(--brand-primary)] opacity-20 rounded-full animate-ping" />
@@ -185,10 +157,8 @@ function HubSession({
 // Main page component
 export default function Hub() {
   const { theme, toggleTheme } = useTheme();
+  const { token, connect, isConnecting, hasConnected } = useAmanAI();
   const [mounted, setMounted] = useState(false);
-  const [token, setToken] = useState("");
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [hasConnected, setHasConnected] = useState(false);
   const [showNav, setShowNav] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -199,23 +169,7 @@ export default function Hub() {
       setShowNav(true);
       return;
     }
-    
-    setIsConnecting(true);
-    try {
-      let ptName = sessionStorage.getItem("amanai_pt_name");
-      if (!ptName) {
-        ptName = `user-${Math.random().toString(36).substring(7)}`;
-        sessionStorage.setItem("amanai_pt_name", ptName);
-      }
-      
-      const response = await fetch(`/api/token?room_name=form-session-${Date.now()}&participant_name=${ptName}`);
-      if (!response.ok) throw new Error("Failed token fetch");
-      const data = await response.json();
-      setToken(data.token);
-    } catch (e) {
-      console.error(e);
-      setIsConnecting(false);
-    }
+    await connect();
   };
 
   const orbVariants: any = {
@@ -258,19 +212,9 @@ export default function Hub() {
         <div className="relative group flex flex-col items-center justify-center mt-12 mb-8" aria-live="polite">
           
           {token ? (
-            <LiveKitRoom
-              serverUrl={liveKitUrl}
-              token={token}
-              connect={true}
-              audio={true}
-              video={false}
-              className="flex items-center justify-center w-full h-full"
-            >
-              <HubSession 
-                shouldDisconnect={showNav}
-                setHasConnected={setHasConnected} 
-              />
-            </LiveKitRoom>
+            <div className="flex items-center justify-center w-full h-full">
+              <HubSession shouldDisconnect={showNav} />
+            </div>
           ) : (
              <>
               <div className="absolute w-48 h-48 bg-[var(--brand-primary)] opacity-20 rounded-full animate-ping" />

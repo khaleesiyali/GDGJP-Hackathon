@@ -1,0 +1,52 @@
+{
+  "form_name": "submit_nerima_welfare_form",
+  "submission_id": "d6e545db",
+  "status": "completed",
+  "answers": {
+    "submission_date": "2026-03-24",
+    "recipient": {
+      "name": "早稲田太郎",
+      "address_detail": "練馬区1-4-7",
+      "personal_number": "",
+      "dob": "2006-06-06",
+      "age": "26",
+      "phone": "080-123-456-78"
+    },
+    "guardian": {
+      "furigana_name": "",
+      "name": "早稲田太郎",
+      "personal_number": "",
+      "dob": "",
+      "phone": "080012345678"
+    },
+    "certificates": {
+      "ai_techo": null,
+      "physical_disability_certificate": null,
+      "mental_disability_certificate": null,
+      "special_disease": null
+    },
+    "medical": {
+      "disease_name": null
+    },
+    "child_disability_allowance_receipt": "申請中",
+    "facility_admission": {
+      "status": "入所していない",
+      "facility_name": ""
+    },
+    "public_account_usage": false,
+    "bank_transfer": {
+      "financial_institution_": "銀行",
+      "financial_institution_type": "銀行",
+      "branch_code": "",
+      "branch_name": "おわせだ",
+      "account_number": "01122235578",
+      "account_kana": "休みだったろう"
+    },
+    "proxy": {
+      "name": "ネリグ",
+      "address": "",
+      "phone": "08901123",
+      "relationship": ""
+    }
+  }
+}

@@ -3,6 +3,7 @@ import logging
 import os
 import uuid 
 import asyncio
+import urllib.parse
 from dotenv import load_dotenv
 
 from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli
@@ -43,15 +44,17 @@ class FormAgent(Agent):
         【初期対応】
         まずは「こんにちは。Aman AIです。本日はどのようなお手続きでしょうか？『手当の申請をしたい』や『過去の履歴を見たい』など、ご自由にお話しください。
 
-        【アクションルール】
-        1. ユーザーが「申請書を作りたい（例：福祉手帳、手当の申請、お金の申請など）」と言った場合、`start_form_filling` ツールを呼び出してください。
-        2. ユーザーが「過去の履歴を見たい」「前の書類を出して」と言った場合、`open_my_files` ツールを呼び出してください。
-        3. ツールからシステムメッセージが返ってきたら、その指示に従って自然に会話を続けてください。
+        【会話のルール】
+        1. ユーザーに対して、自然で温かいトーンで話しかけてください。
+        2. 一度に1つの質問だけをユーザーに聞いてください。
+        3. **絶対に忘れないでください**: 新しい質問をする前には、**必ず `update_ui_card` ツールを呼び出して**、画面の表示を現在聞こうとしている質問内容に更新してください。
+        4. ツールからシステムメッセージが返ってきたら、自然に会話を続けてください。
         """
         super().__init__(instructions=instructions)
         self.room = room
         self.current_form_data = None
         self.expected_format = ""
+        self.last_submission = None
 
     # ----------------------------------------------------
     # Form filling Mode
@@ -112,7 +115,9 @@ class FormAgent(Agent):
         6. 【送信条件】ユーザーが上記の宣言を声に出して言ったのを確認した後のみ、`submit_form_data` を呼び出してください。
         7. ⚠️【超重要：厳密なデータフォーマット】⚠️
         `submit_form_data` に渡す `updated_json_string` は、必ず以下のJSON構造(スキーマ)を完全に維持してください!勝手に構造をFlattenしたり、キーの名前を変えたりすることは絶対に禁止です。収集できなかった項目は `null` または `""` にしてください。
-        8.　使用言語は日本語のみ
+        8. ⚠️【超重要：画面UIの更新】⚠️ ユーザーに新しい質問をする直前には、**必ず `update_ui_card` ツールを呼び出して**、画面のカードを更新してください（例：title="お電話番号", description="日中連絡がつく電話番号を教えてください"）。このアクションは毎回の質問で必須です。
+        9. 【徹底質問】JSONフォーマットに存在する項目は、**1つ残らず絶対にすべて**ユーザーに質問して埋めてください。銀行口座情報（金融機関名、支店名、口座番号）や保護者情報など、面倒な項目も絶対にスキップしてはいけません！すべて聞き出してください。
+        10. 使用言語は日本語のみ
         9.もし年齢は18歳以上としたら、保護者の記入は不要
 
         【必須の出力JSON構造テンプレート】:
@@ -121,6 +126,32 @@ class FormAgent(Agent):
 # ----------------------------------------------------
     # Form retrieving Mode
 # ----------------------------------------------------   
+
+    @function_tool(description="新しい質問をする直前に【必ず・毎回】呼び出します。画面のUIカードを更新します。titleは質問の短い見出し（例:「お電話番号」「ご住所」）、descriptionは画面に表示する詳しい説明文を指定します。")
+    async def update_ui_card(self, title: str, description: str) -> str:
+        logger.info(f"📡 UIカード動的更新: {title}")
+        if self.room:
+            payload = json.dumps({
+                "action": "update_card", 
+                "title": title,
+                "description": description
+            }).encode('utf-8')
+            asyncio.create_task(self.room.local_participant.publish_data(payload, reliable=True))
+        return "UI card successfully updated, now you can ask the user the question verbally."
+
+    @function_tool(description="ユーザーがすべての質問に答え終わり、記入内容の確認も完了した後に呼び出します。フロントエンドを自動的に「手続き完了」画面に移動させます。")
+    async def finish_form(self) -> str:
+        logger.info("📡 完了通知シグナル！")
+        if self.room:
+            destination = "/success"
+            if self.last_submission:
+                encoded_data = urllib.parse.quote(json.dumps(self.last_submission))
+                sub_id = self.last_submission.get("submission_id", "")
+                destination = f"/success?formData={encoded_data}&submissionId={sub_id}"
+                
+            payload = json.dumps({"action": "navigate", "destination": destination}).encode('utf-8')
+            asyncio.create_task(self.room.local_participant.publish_data(payload, reliable=True))
+        return "Navigating to success"
 
     @function_tool(description="ユーザーが過去の申請履歴（マイファイル）を見たいと言った場合に呼び出します。")
     async def open_my_files(self) -> str:
@@ -149,6 +180,7 @@ class FormAgent(Agent):
                 "status": "completed",
                 "answers": user_answers
             }
+            self.last_submission = final_submission
 
             new_file_name = f"result_{submission_id}.json"
             with open(new_file_name, "w", encoding="utf-8") as f:

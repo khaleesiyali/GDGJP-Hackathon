@@ -1,0 +1,23 @@
+{
+  "form_name": "submit_nerima_welfare_form",
+  "submission_id": "2589a172",
+  "status": "completed",
+  "answers": {
+    "submission_date": "2026-03-24",
+    "recipient": {
+      "name": "Waseida",
+      "address_ward": "練馬区",
+      "address_detail": "一の三の七",
+      "dob": "2000-09-06",
+      "phone": "080-1234-5678"
+    },
+    "guardian": null,
+    "certificates": {},
+    "medical": {},
+    "child_disability_allowance_receipt": "無",
+    "facility_admission": null,
+    "public_account_usage": false,
+    "bank_transfer": {},
+    "proxy": {}
+  }
+}

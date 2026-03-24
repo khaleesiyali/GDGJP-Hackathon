@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Download, Home, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Success() {
   const router = useRouter();
@@ -57,6 +57,19 @@ export default function Success() {
     }
   };
 
+  const [qrSrc, setQrSrc] = useState<string>("");
+  
+  useEffect(() => {
+    import('qrcode').then((QRCode) => {
+      // The default export works a bit differently depending on module resolution, but usually it's QRCode.default or QRCode itself
+      const qrc = typeof QRCode.toDataURL === 'function' ? QRCode : (QRCode as any).default;
+      if (qrc && typeof qrc.toDataURL === 'function') {
+        qrc.toDataURL(submissionId, { width: 150, margin: 1, color: { dark: '#000000', light: '#FFFFFF' } })
+          .then((url: string) => setQrSrc(url));
+      }
+    }).catch(e => console.error("QR Code generation failed:", e));
+  }, [submissionId]);
+
   return (
     <div className="flex flex-col h-screen w-full bg-gradient-to-br from-slate-900 to-slate-800 items-center justify-center p-6">
       {/* Success Animation */}
@@ -86,9 +99,21 @@ export default function Success() {
         <p className="text-xl text-yellow-400/70 mb-2">
           {formName}
         </p>
-        <p className="text-sm text-slate-400 mb-6">
-          受付ID: <span className="font-mono text-yellow-400">{submissionId}</span>
+        <p className="text-sm text-slate-400 mb-6 flex flex-col items-center gap-1">
+          <span>受付ID: <span className="font-mono text-yellow-400">{submissionId}</span></span>
         </p>
+        
+        <div className="flex justify-center mb-8">
+          {qrSrc ? (
+            <div className="bg-white p-3 rounded-2xl shadow-xl hover:scale-110 transition-transform">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={qrSrc} alt="Submission QR Code" className="w-[120px] h-[120px] md:w-[150px] md:h-[150px]" />
+            </div>
+          ) : (
+            <div className="w-[144px] h-[144px] bg-slate-800 animate-pulse rounded-2xl" />
+          )}
+        </div>
+
         <div className="flex items-center justify-center gap-2 text-yellow-400/60">
           <CheckCircle size={20} />
           <span>あなたのフォームが正常に登録されました</span>
