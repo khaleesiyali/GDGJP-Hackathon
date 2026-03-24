@@ -1,0 +1,39 @@
+{
+  "form_name": "submit_nerima_welfare_form",
+  "submission_id": "7480d250",
+  "status": "completed",
+  "answers": {
+    "submission_date": "2026-03-24",
+    "recipient": {
+      "name": "和世田太郎",
+      "address_detail": "メリマグ一農民農山",
+      "personal_number": "0197891145",
+      "dob": "2006-06-06",
+      "age": "17",
+      "phone": "0901178"
+    },
+    "guardian": null,
+    "certificates": {
+      "ai_techo": null,
+      "physical_disability_certificate": null,
+      "mental_disability_certificate": null,
+      "special_disease": null
+    },
+    "medical": null,
+    "child_disability_allowance_receipt": "無",
+    "facility_admission": {
+      "status": "入所していない",
+      "facility_name": ""
+    },
+    "public_account_usage": false,
+    "bank_transfer": {
+      "financial_institution_": "住友銀行",
+      "financial_institution_type": "銀行",
+      "branch_code": "001",
+      "branch_name": "住友",
+      "account_number": "お知らせの口座番号",
+      "account_kana": "すみとうも"
+    },
+    "proxy": null
+  }
+}
