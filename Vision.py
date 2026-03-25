@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli
 from livekit.agents import AgentSession, Agent, function_tool
+import livekit.rtc
 from livekit.plugins import openai, silero
 
 
@@ -213,6 +214,25 @@ async def entrypoint(ctx: JobContext):
         agent=FormAgent(room=ctx.room)
     )
     logger.info("✅ AI connected")
+
+    @ctx.room.on("data_received")
+    def on_data_received(dp: livekit.rtc.DataPacket, **kwargs):
+        try:
+            payload = json.loads(dp.data.decode("utf-8"))
+            if payload.get("action") == "camera_scan":
+                content = payload.get("content", "")
+                logger.info(f"📸 カメラからの書類データを取得しました！\n{content}")
+                
+                # Context Injection
+                session.chat_ctx.messages.append({
+                    "role": "user",
+                    "content": f"【カメラからスキャンした書類のデータ】\n{content}\nこれをもとに、何の書類か特定し、すでに書かれている内容を確認した上で、残りの空欄を埋めるための質問を順番に開始してください。"
+                })
+                
+                # Proactively speak to user
+                asyncio.create_task(session.say("書類の読み込みが完了しました。内容を確認しながら、足りない項目について質問させていただきますね。", allow_interruptions=True))
+        except Exception as e:
+            logger.error(f"Error processing data channel message: {e}")
 
     greeting_text = "こんにちは、Aman　AIです。本日はどのようなお手続きでしょうか？『手当の申請をしたい』や『過去の履歴を見たい』など、ご自由にお話しください。"
     

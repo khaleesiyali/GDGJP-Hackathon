@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Folder, Camera, User, Mic, Sun, Moon, Loader } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/components/ThemeProvider";
 import { 
@@ -157,11 +157,94 @@ function HubSession({
 // Main page component
 export default function Hub() {
   const { theme, toggleTheme } = useTheme();
-  const { token, connect, isConnecting, hasConnected } = useAmanAI();
+  const { token, connect, isConnecting, hasConnected, sendScannedContext } = useAmanAI();
   const [mounted, setMounted] = useState(false);
   const [showNav, setShowNav] = useState(false);
+  
+  // Camera State
+  const [isScanning, setIsScanning] = useState(false);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => setMounted(true), []);
+
+  const openScanner = async () => {
+    setIsScanning(true);
+    try {
+      // Prompt for both video and audio so the Agent works flawlessly right after
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "environment" },
+        audio: true 
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (e) {
+      console.warn("Could not get environment camera, falling back to default.", e);
+      try {
+        const fallbackStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        streamRef.current = fallbackStream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = fallbackStream;
+        }
+      } catch (err) {
+        alert("カメラ・マイクへのアクセスが許可されていません。(Camera/Mic access denied)");
+        setIsScanning(false);
+      }
+    }
+  };
+
+  const closeScanner = () => {
+    setIsScanning(false);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+  };
+
+  const captureAndScan = async () => {
+    if (!videoRef.current) return;
+    setIsProcessingImage(true);
+    
+    // Draw to canvas
+    const canvas = document.createElement("canvas");
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(videoRef.current, 0, 0);
+    const base64Image = canvas.toDataURL("image/jpeg", 0.7);
+
+    try {
+      // 1. Send to Next.js API to extract text
+      const res = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64Image })
+      });
+      if (!res.ok) throw new Error("Failed to scan image");
+      const { text } = await res.json();
+
+      closeScanner();
+
+      // 2. Connect to AI Agent if not already
+      if (!token) {
+        await connect();
+      }
+
+      // 3. Send extracted text to AI
+      await sendScannedContext(text);
+      setShowNav(true);
+      
+    } catch (error) {
+      console.error(error);
+      alert("画像の読み取りに失敗しました。もう一度お試しください。");
+    } finally {
+      setIsProcessingImage(false);
+    }
+  };
 
   const handleOrbClick = async () => {
     if (token) {
@@ -268,7 +351,10 @@ export default function Hub() {
           <span className="text-[10px] font-bold tracking-wider" aria-label="ファイル">ファイル</span>
         </button>
 
-        <button className="flex flex-col items-center gap-1 text-[var(--brand-primary)] opacity-60 hover:opacity-100 transition-opacity">
+        <button 
+          onClick={openScanner}
+          className="flex flex-col items-center gap-1 text-[var(--brand-primary)] opacity-60 hover:opacity-100 transition-opacity"
+        >
           <Camera size={24} />
           <span className="text-[10px] font-bold tracking-wider" aria-label="スキャン">スキャン</span>
         </button>
@@ -278,6 +364,47 @@ export default function Hub() {
           <span className="text-[10px] font-bold tracking-wider" aria-label="プロフィール">プロフィール</span>
         </button>
       </nav>
+
+      {/* Camera Scanner Overlay */}
+      <AnimatePresence>
+        {isScanning && (
+          <motion.div 
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-between pointer-events-auto"
+          >
+            <div className="absolute top-0 w-full p-6 flex justify-between items-center z-10 bg-gradient-to-b from-black/80 to-transparent">
+              <h2 className="text-white font-bold tracking-wider">書類スキャン</h2>
+              <button onClick={closeScanner} className="text-white bg-white/20 px-4 py-2 rounded-full font-bold">
+                閉じる (Close)
+              </button>
+            </div>
+            
+            <div className="relative w-full h-[80vh] flex bg-slate-900 mt-16 rounded-3xl overflow-hidden mx-4">
+              <video 
+                ref={videoRef} 
+                className="w-full h-full object-cover" 
+                autoPlay 
+                playsInline 
+                muted 
+              />
+              <div className="absolute inset-0 border-4 border-yellow-400/50 rounded-3xl m-8 pointer-events-none" />
+            </div>
+
+            <div className="w-full h-[15vh] flex items-center justify-center pb-8 bg-black">
+              <button 
+                onClick={captureAndScan} 
+                disabled={isProcessingImage}
+                className="w-20 h-20 bg-white rounded-full border-4 border-slate-300 active:scale-95 transition-transform flex items-center justify-center"
+              >
+                {isProcessingImage ? <Loader className="animate-spin text-black" size={32} /> : null}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }

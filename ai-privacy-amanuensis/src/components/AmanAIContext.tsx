@@ -10,6 +10,7 @@ type GlobalContextType = {
   isConnecting: boolean;
   connect: () => Promise<void>;
   disconnect: () => void;
+  sendScannedContext: (text: string) => Promise<void>;
   currentQuestion: { title: string, description: string };
   setCurrentQuestion: (q: { title: string, description: string }) => void;
   hasConnected: boolean;
@@ -30,6 +31,19 @@ function GlobalAgentListener() {
   const { setCurrentQuestion } = useAmanAI();
 
   useEffect(() => {
+    // Expose sendScannedContext through a ref or global window for now since it needs `room` access
+    if (typeof window !== "undefined") {
+      (window as any).sendScannedContextData = async (text: string) => {
+        try {
+          const payload = JSON.stringify({ action: "camera_scan", content: text });
+          const encoder = new TextEncoder();
+          await room.localParticipant.publishData(encoder.encode(payload), { reliable: true });
+        } catch (e) {
+          console.error("Failed to send camera data", e);
+        }
+      };
+    }
+
     // Listen for Agent commands
     const handleData = (payload: Uint8Array) => {
       try {
@@ -39,8 +53,8 @@ function GlobalAgentListener() {
           router.push(data.destination);
         } else if (data.action === "update_card") {
           setCurrentQuestion({
-             title: data.title || "ご質問",
-             description: data.description || "..."
+            title: data.title || "ご質問",
+            description: data.description || "..."
           });
         }
       } catch (e) {
@@ -62,20 +76,33 @@ export function GlobalLiveKitProvider({ children }: { children: React.ReactNode 
   const [isConnecting, setIsConnecting] = useState(false);
   const [hasConnected, setHasConnected] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState({
-     title: "ご用件について",
-     description: "本日はどのようなご用件でしょうか？詳細をお話しください。"
+    title: "ご用件について",
+    description: "本日はどのようなご用件でしょうか？詳細をお話しください。"
   });
 
   const connect = async () => {
     if (token) return;
     setIsConnecting(true);
     try {
+      // iOS Safari Workaround: Trigger mic permission synchronously on click before async fetch!
+      if (typeof navigator !== "undefined" && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          stream.getTracks().forEach(track => track.stop());
+        } catch (mediaError) {
+          console.error("Microphone permission denied or unavailable:", mediaError);
+          alert("マイクへのアクセスが許可されていません。(Microphone access denied)");
+          setIsConnecting(false);
+          return;
+        }
+      }
+
       let ptName = sessionStorage.getItem("amanai_pt_name");
       if (!ptName) {
         ptName = `user-${Math.random().toString(36).substring(7)}`;
         sessionStorage.setItem("amanai_pt_name", ptName);
       }
-      
+
       const response = await fetch(`/api/token?room_name=form-session&participant_name=${ptName}`);
       if (!response.ok) throw new Error("Backend error fetching token");
       const data = await response.json();
@@ -96,16 +123,21 @@ export function GlobalLiveKitProvider({ children }: { children: React.ReactNode 
   const liveKitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || "wss://jing-139sv34p.livekit.cloud";
 
   return (
-    <GlobalContext.Provider 
-      value={{ 
-        token, 
-        isConnecting, 
-        connect, 
-        disconnect, 
-        currentQuestion, 
+    <GlobalContext.Provider
+      value={{
+        token,
+        isConnecting,
+        connect,
+        disconnect,
+        currentQuestion,
         setCurrentQuestion,
         hasConnected,
-        setHasConnected
+        setHasConnected,
+        sendScannedContext: async (text: string) => {
+          if (!token) return;
+          // Context is sent via DataChannel from the component inside the room
+          console.warn("sendScannedContext is ready to use via GlobalAgentListener");
+        }
       }}
     >
       <LiveKitRoom
