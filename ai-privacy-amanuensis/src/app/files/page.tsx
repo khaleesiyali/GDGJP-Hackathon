@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, FileText, Download, QrCode, X, Loader } from "lucide-react";
+import { useAmanAI } from "@/components/AmanAIContext";
 
 type Submission = {
   filename: string;
@@ -15,6 +16,7 @@ type Submission = {
 
 export default function MyFiles() {
   const router = useRouter();
+  const { language } = useAmanAI();
   const [files, setFiles] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState<Submission | null>(null);
@@ -85,20 +87,20 @@ export default function MyFiles() {
           aria-label="ホームに戻る (Go Back Home)"
         >
           <Home size={32} />
-          <span className="text-xl font-bold tracking-widest">戻る</span>
+          <span className="text-xl font-bold tracking-widest">{language === "ja" ? "戻る" : "Back"}</span>
         </button>
-        <h1 className="text-3xl font-extrabold tracking-widest uppercase">マイファイル</h1>
+        <h1 className="text-3xl font-extrabold tracking-widest uppercase">{language === "ja" ? "マイファイル" : "My Files"}</h1>
       </div>
 
       {loading ? (
         <div className="flex-1 flex flex-col items-center justify-center">
           <Loader size={64} className="animate-spin mb-4" />
-          <p className="text-2xl font-bold animate-pulse">読み込み中...</p>
+          <p className="text-2xl font-bold animate-pulse">{language === "ja" ? "読み込み中..." : "Loading..."}</p>
         </div>
       ) : files.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
           <FileText size={80} className="opacity-30 mb-6" />
-          <p className="text-2xl font-bold opacity-70">申請履歴がありません</p>
+          <p className="text-2xl font-bold opacity-70">{language === "ja" ? "申請履歴がありません" : "No file history"}</p>
         </div>
       ) : (
         <div className="w-full max-w-2xl flex flex-col gap-6 pb-20">
@@ -124,7 +126,7 @@ export default function MyFiles() {
               </div>
               <div className="mt-4 pt-4 border-t-2 border-yellow-400/20">
                 <p className="text-lg opacity-60 font-bold">
-                  {new Date(file.timestamp).toLocaleString("ja-JP", {
+                  {new Date(file.timestamp).toLocaleString(language === "ja" ? "ja-JP" : "en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -154,7 +156,7 @@ export default function MyFiles() {
                 aria-label="閉じる (Close File Details)"
               >
                 <X size={32} />
-                <span>閉じる</span>
+                <span>{language === "ja" ? "閉じる" : "Close"}</span>
               </button>
             </div>
 
@@ -174,7 +176,7 @@ export default function MyFiles() {
                 >
                   <Download size={48} />
                   <span className="text-2xl font-extrabold">
-                    {isDownloading ? "処理中..." : "PDFダウンロード"}
+                    {isDownloading ? (language === "ja" ? "処理中..." : "Processing...") : (language === "ja" ? "PDFダウンロード" : "Download PDF")}
                   </span>
                 </button>
 
@@ -182,7 +184,7 @@ export default function MyFiles() {
                 <div className="w-full bg-black/50 border-2 border-yellow-400/30 p-8 rounded-3xl flex flex-col items-center justify-center gap-6 mt-6">
                   <div className="flex items-center gap-4 text-yellow-400">
                     <QrCode size={40} />
-                    <span className="text-2xl font-extrabold tracking-widest">受付QRコード</span>
+                    <span className="text-2xl font-extrabold tracking-widest">{language === "ja" ? "受付QRコード" : "Counter QR Code"}</span>
                   </div>
                   {qrSrc ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -191,7 +193,7 @@ export default function MyFiles() {
                     <div className="w-[200px] h-[200px] bg-slate-800 animate-pulse rounded-3xl" />
                   )}
                   <p className="text-lg opacity-70 mt-2 font-bold">
-                    窓口でこの画面をご提示ください
+                    {language === "ja" ? "窓口でこの画面をご提示ください" : "Please present this screen at the counter"}
                   </p>
                 </div>
               </div>

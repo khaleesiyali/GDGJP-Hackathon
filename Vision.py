@@ -381,7 +381,7 @@ async def entrypoint(ctx: JobContext):
     
     
     session = AgentSession(
-        stt=openai.STT(language="ja"),
+        stt=openai.STT(), # Removed language="ja" to allow auto-detection for English and Japanese
         llm=openai.LLM(model="gpt-4o-mini"),
         tts=openai.TTS(voice="alloy"),
         vad=silero.VAD.load(min_silence_duration=0.5),
@@ -406,9 +406,25 @@ async def entrypoint(ctx: JobContext):
                     "role": "user",
                     "content": f"【カメラからスキャンした書類のデータ】\n{content}\nこれをもとに、何の書類か特定し、すでに書かれている内容を確認した上で、残りの空欄を埋めるための質問を順番に開始してください。"
                 })
-                
-                # Proactively speak to user
-                asyncio.create_task(session.say("書類の読み込みが完了しました。内容を確認しながら、足りない項目について質問させていただきますね。", allow_interruptions=True))
+                # Send prompt to start gathering specific missing info over AI Voice
+                asyncio.create_task(session.say(f"カメラから情報を読み取りました。以下の情報が不足しています。順番に教えてください。\n\n{keys_to_ask_str}", allow_interruptions=True))
+                    
+            elif payload.get("action") == "set_language":
+                lang = payload.get("lang")
+                logger.info(f"Language switched to {lang}")
+                if lang == "en":
+                    session.chat_ctx.messages.append({
+                        "role": "system",
+                        "content": "【SYSTEM INSTRUCTION】The user has switched the language to English. You MUST now speak, ask all questions, and communicate entirely in English. \nCRITICAL RULES:\n1. Your voice and text responses must be in English.\n2. When calling `update_ui_card`, use English for the title and description.\n3. However, the data you collect and fill into the JSON schema MUST be strictly translated into Japanese (e.g., if user says 'Tokyo', save it as '東京都' in the JSON). Do not save English text in the final form payload."
+                    })
+                    asyncio.create_task(session.say("I have switched to English. How can I help you today?", allow_interruptions=True))
+                else:
+                    session.chat_ctx.messages.append({
+                        "role": "system",
+                        "content": "【SYSTEM INSTRUCTION】ユーザーが言語を日本語に切り替えました。これ以降はすべて日本語で話し、UIカードも日本語にしてください。JSONへの入力も通常通り日本語で行ってください。"
+                    })
+                    asyncio.create_task(session.say("日本語に切り替えました。引き続きよろしくお願いいたします。", allow_interruptions=True))
+
         except Exception as e:
             logger.error(f"Error processing data channel message: {e}")
 

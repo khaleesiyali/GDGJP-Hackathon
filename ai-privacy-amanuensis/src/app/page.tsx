@@ -5,7 +5,7 @@ import { Folder, Camera, User, Mic, Sun, Moon, Loader } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/components/ThemeProvider";
-import { 
+import {
   useLocalParticipant,
   useVoiceAssistant
 } from "@livekit/components-react";
@@ -13,13 +13,13 @@ import "@livekit/components-styles";
 import { useAmanAI } from "@/components/AmanAIContext";
 
 // The interactive inner component logic
-function HubSession({ 
+function HubSession({
   shouldDisconnect
-}: { 
-  shouldDisconnect: boolean 
+}: {
+  shouldDisconnect: boolean
 }) {
   const { localParticipant } = useLocalParticipant();
-  const { setHasConnected } = useAmanAI();
+  const { setHasConnected, language } = useAmanAI();
   let voiceAssistant;
   try {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -27,10 +27,10 @@ function HubSession({
   } catch (e) {
     voiceAssistant = { state: "disconnected" };
   }
-  
+
   const agentState = voiceAssistant?.state || "disconnected";
   const isMicOn = localParticipant?.isMicrophoneEnabled;
-  
+
   // As soon as room mounts, turn on mic so agent can hear "hello"
   useEffect(() => {
     if (localParticipant && !isMicOn && agentState !== "disconnected") {
@@ -60,17 +60,17 @@ function HubSession({
 
   // Map Agent state to our visually custom Orb states
   let orbVisual: "idle" | "listening" | "processing" | "success" = "idle";
-  let statusText = "接続完了。お話しください";
+  let statusText = language === "ja" ? "接続完了。お話しください" : "Connected. Please speak.";
 
   if (agentState === "speaking") {
     orbVisual = "listening"; // Rings for speaking
-    statusText = "エージェントが発言中...";
+    statusText = language === "ja" ? "エージェントが発言中..." : "Agent speaking...";
   } else if (agentState === "thinking" || agentState === "initializing") {
     orbVisual = "processing"; // Swirls
-    statusText = "処理中...";
+    statusText = language === "ja" ? "処理中..." : "Processing...";
   } else if (agentState === "listening" || isMicOn) {
     orbVisual = "listening";
-    statusText = "聞き取り中...";
+    statusText = language === "ja" ? "聞き取り中..." : "Listening...";
   }
 
   const orbVariants = {
@@ -143,12 +143,12 @@ function HubSession({
       >
         <Mic size={48} strokeWidth={2.5} />
       </motion.button>
-      
+
       {/* Overlay Status text below orb */}
       <div className="absolute top-48 w-full flex justify-center pointer-events-none">
-         <p className="text-lg font-bold tracking-widest uppercase animate-pulse text-[var(--brand-primary)]">
-            <span aria-label={statusText}>{statusText}</span>
-         </p>
+        <p className="text-lg font-bold tracking-widest uppercase animate-pulse text-[var(--brand-primary)]">
+          <span aria-label={statusText}>{statusText}</span>
+        </p>
       </div>
     </>
   );
@@ -157,10 +157,10 @@ function HubSession({
 // Main page component
 export default function Hub() {
   const { theme, toggleTheme } = useTheme();
-  const { token, connect, isConnecting, hasConnected, sendScannedContext } = useAmanAI();
+  const { token, connect, isConnecting, hasConnected, sendScannedContext, language, toggleLanguage } = useAmanAI();
   const [mounted, setMounted] = useState(false);
   const [showNav, setShowNav] = useState(false);
-  
+
   // Camera State
   const [isScanning, setIsScanning] = useState(false);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
@@ -173,9 +173,9 @@ export default function Hub() {
     setIsScanning(true);
     try {
       // Prompt for both video and audio so the Agent works flawlessly right after
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" },
-        audio: true 
+        audio: true
       });
       streamRef.current = stream;
       if (videoRef.current) {
@@ -207,7 +207,7 @@ export default function Hub() {
   const captureAndScan = async () => {
     if (!videoRef.current) return;
     setIsProcessingImage(true);
-    
+
     // Draw to canvas
     const canvas = document.createElement("canvas");
     canvas.width = videoRef.current.videoWidth;
@@ -237,7 +237,7 @@ export default function Hub() {
       // 3. Send extracted text to AI
       await sendScannedContext(text);
       setShowNav(true);
-      
+
     } catch (error) {
       console.error(error);
       alert("画像の読み取りに失敗しました。もう一度お試しください。");
@@ -275,9 +275,20 @@ export default function Hub() {
             AmanAI
           </h1>
           <p className="text-[var(--brand-primary)] opacity-70 text-sm mt-2 font-medium">
-            <span aria-label="エンドツーエンド暗号化">エンドツーエンド暗号化</span>
+            <span aria-label="エンドツーエンド暗号化">{language === "ja" ? "エンドツーエンド暗号化" : "End-to-End Encrypted"}</span>
           </p>
         </div>
+
+        {/* Language Toggle Button (Top Left) */}
+        {mounted && (
+          <button
+            onClick={toggleLanguage}
+            className="absolute left-0 top-0 p-2 px-3 text-xs font-bold rounded-full border border-[var(--brand-border)] text-[var(--brand-primary)] hover:bg-[var(--brand-primary)] hover:text-[var(--brand-bg)] transition-colors"
+            aria-label="Toggle Language"
+          >
+            {language === "ja" ? "EN" : "JP"}
+          </button>
+        )}
 
         {mounted && (
           <button
@@ -293,13 +304,13 @@ export default function Hub() {
       {/* Main Center - Pulsating Orb */}
       <div className="flex-1 flex items-center justify-center flex-col w-full relative">
         <div className="relative group flex flex-col items-center justify-center mt-12 mb-8" aria-live="polite">
-          
+
           {token ? (
             <div className="flex items-center justify-center w-full h-full">
               <HubSession shouldDisconnect={showNav} />
             </div>
           ) : (
-             <>
+            <>
               <div className="absolute w-48 h-48 bg-[var(--brand-primary)] opacity-20 rounded-full animate-ping" />
               <motion.button
                 onClick={handleOrbClick}
@@ -311,15 +322,17 @@ export default function Hub() {
               >
                 {isConnecting ? <Loader size={48} className="animate-spin" /> : <Mic size={48} strokeWidth={2.5} />}
               </motion.button>
-              
+
               <div className="h-12 mt-8 flex items-center justify-center">
                 <p className="text-lg font-bold tracking-widest uppercase text-[var(--brand-primary)]">
-                  <span aria-label="タップして話す">
-                    {isConnecting ? "接続中..." : "タップして話す"}
+
+                  <span className="text-[15px] font-bold tracking-wider" aria-label={language === "ja" ? "タップして話す" : "Tap to Speak"}>{language === "en" ? "Tap to Speak" : "タップして話す"}
+
+                    {isConnecting ? (language === "en" ? " Connecting..." : " 接続中...") : ""}
                   </span>
                 </p>
               </div>
-             </>
+            </>
           )}
 
         </div>
@@ -333,7 +346,8 @@ export default function Hub() {
                 exit={{ opacity: 0, y: -20 }}
               >
                 <Link href="/form" onClick={() => setShowNav(true)} className="px-8 py-3 bg-[var(--brand-primary)] text-[var(--brand-bg)] rounded-full font-bold uppercase tracking-wider hover:scale-105 transition-transform flex items-center justify-center shadow-lg shadow-[var(--brand-border)]">
-                  <span aria-label="申請を進める">申請を進める →</span>
+                  <span aria-label={language === "ja" ? "申請を進める" : "Proceed"}>{language === "ja" ? "申請を進める →" : "Proceed →"}</span>
+
                 </Link>
               </motion.div>
             )}
@@ -348,27 +362,27 @@ export default function Hub() {
       >
         <Link href="/files" className="flex flex-col items-center gap-1 text-[var(--brand-primary)] opacity-60 hover:opacity-100 transition-opacity">
           <Folder size={24} />
-          <span className="text-[10px] font-bold tracking-wider" aria-label="ファイル">ファイル</span>
+          <span className="text-[10px] font-bold tracking-wider" aria-label={language === "ja" ? "ファイル" : "Files"}>{language === "ja" ? "ファイル" : "Files"}</span>
         </Link>
 
-        <button 
+        <button
           onClick={openScanner}
           className="flex flex-col items-center gap-1 text-[var(--brand-primary)] opacity-60 hover:opacity-100 transition-opacity"
         >
           <Camera size={24} />
-          <span className="text-[10px] font-bold tracking-wider" aria-label="スキャン">スキャン</span>
+          <span className="text-[10px] font-bold tracking-wider" aria-label={language === "ja" ? "スキャン" : "Scan"}>{language === "ja" ? "スキャン" : "Scan"}</span>
         </button>
 
         <button className="flex flex-col items-center gap-1 text-[var(--brand-primary)] opacity-60 hover:opacity-100 transition-opacity">
           <User size={24} />
-          <span className="text-[10px] font-bold tracking-wider" aria-label="プロフィール">プロフィール</span>
+          <span className="text-[10px] font-bold tracking-wider" aria-label={language === "ja" ? "プロフィール" : "Profile"}>{language === "ja" ? "プロフィール" : "Profile"}</span>
         </button>
       </nav>
 
       {/* Camera Scanner Overlay */}
       <AnimatePresence>
         {isScanning && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: "100%" }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "100%" }}
@@ -380,21 +394,21 @@ export default function Hub() {
                 閉じる (Close)
               </button>
             </div>
-            
+
             <div className="relative w-full h-[80vh] flex bg-slate-900 mt-16 rounded-3xl overflow-hidden mx-4">
-              <video 
-                ref={videoRef} 
-                className="w-full h-full object-cover" 
-                autoPlay 
-                playsInline 
-                muted 
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                autoPlay
+                playsInline
+                muted
               />
               <div className="absolute inset-0 border-4 border-yellow-400/50 rounded-3xl m-8 pointer-events-none" />
             </div>
 
             <div className="w-full h-[15vh] flex items-center justify-center pb-8 bg-black">
-              <button 
-                onClick={captureAndScan} 
+              <button
+                onClick={captureAndScan}
                 disabled={isProcessingImage}
                 className="w-20 h-20 bg-white rounded-full border-4 border-slate-300 active:scale-95 transition-transform flex items-center justify-center"
               >

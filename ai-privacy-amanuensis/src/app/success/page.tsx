@@ -4,11 +4,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Download, Home, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { useAmanAI } from '@/components/AmanAIContext';
 
 export default function Success() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const formName = searchParams.get('formName') || '申請フォーム';
+  const { language } = useAmanAI();
+  const formName = searchParams.get('formName') || (language === "ja" ? '申請フォーム' : 'Application Form');
   const submissionId = searchParams.get('submission_id') || searchParams.get('submissionId') || 'UNKNOWN_ID';
   const formDataJson = searchParams.get('formData');
   
@@ -36,7 +38,7 @@ export default function Success() {
       }, 1000);
     } catch (error) {
       console.error('Error downloading PDF:', error);
-      alert('PDFのダウンロードに失敗しました');
+      alert(language === "ja" ? 'PDFのダウンロードに失敗しました' : 'Failed to download PDF');
     } finally {
       setIsDownloading(false);
     }
@@ -79,13 +81,13 @@ export default function Success() {
         className="text-center mb-12"
       >
         <h1 className="text-5xl font-bold text-yellow-400 mb-4">
-          申請完了！
+          {language === "ja" ? "申請完了！" : "Application Complete!"}
         </h1>
         <p className="text-xl text-yellow-400/70 mb-2">
           {formName}
         </p>
         <p className="text-sm text-slate-400 mb-6 flex flex-col items-center gap-1">
-          <span>受付ID: <span className="font-mono text-yellow-400">{submissionId}</span></span>
+          <span>{language === "ja" ? "受付ID: " : "Submission ID: "}<span className="font-mono text-yellow-400">{submissionId}</span></span>
         </p>
         
         <div className="flex justify-center mb-8">
@@ -101,7 +103,7 @@ export default function Success() {
 
         <div className="flex items-center justify-center gap-2 text-yellow-400/60">
           <CheckCircle size={20} />
-          <span>あなたのフォームが正常に登録されました</span>
+          <span>{language === "ja" ? "あなたのフォームが正常に登録されました" : "Your form has been successfully registered"}</span>
         </div>
       </motion.div>
 
@@ -119,7 +121,7 @@ export default function Success() {
         >
           <Download size={24} />
           <span className="text-lg">
-            {isDownloading ? 'ダウンロード中...' : 'PDFをダウンロード'}
+            {isDownloading ? (language === "ja" ? "ダウンロード中..." : "Downloading...") : (language === "ja" ? "PDFをダウンロード" : "Download PDF")}
           </span>
         </button>
 
@@ -139,11 +141,11 @@ export default function Success() {
         transition={{ duration: 0.6, delay: 0.6 }}
         className="w-full max-w-md bg-slate-800/50 border border-yellow-400/20 rounded-2xl p-6 mb-8 text-center"
       >
-        <h3 className="text-yellow-400 font-bold mb-3">次のステップ</h3>
+        <h3 className="text-yellow-400 font-bold mb-3">{language === "ja" ? "次のステップ" : "Next Steps"}</h3>
         <ul className="text-yellow-400/70 text-sm space-y-2">
-          <li>✓ PDFファイルをダウンロードしています</li>
-          <li>✓ 受付IDを大切に保管してください</li>
-          <li>✓ ご不明な点はサポートまで</li>
+          <li>{language === "ja" ? "✓ PDFファイルをダウンロードしています" : "✓ PDF file is being generated"}</li>
+          <li>{language === "ja" ? "✓ 受付IDを大切に保管してください" : "✓ Please keep your Submission ID safe"}</li>
+          <li>{language === "ja" ? "✓ ご不明な点はサポートまで" : "✓ Contact support if you have questions"}</li>
         </ul>
       </motion.div>
 
@@ -159,13 +161,13 @@ export default function Success() {
           className="h-14 bg-slate-800 text-yellow-400 px-8 rounded-full flex items-center justify-center gap-2 font-bold border-2 border-yellow-400 hover:bg-yellow-400 hover:text-slate-900 transition-all whitespace-nowrap"
         >
           <Home size={20} />
-          <span>ホームに戻る</span>
+          <span>{language === "ja" ? "ホームに戻る" : "Back to Home"}</span>
         </button>
         <button
           onClick={() => router.push('/form')}
           className="h-14 bg-yellow-400/20 text-yellow-400 px-8 rounded-full flex items-center justify-center gap-2 font-bold border-2 border-yellow-400 hover:bg-yellow-400 hover:text-slate-900 transition-all whitespace-nowrap"
         >
-          <span>別のフォームを入力</span>
+          <span>{language === "ja" ? "別のフォームを入力" : "Fill another form"}</span>
         </button>
       </motion.div>
 

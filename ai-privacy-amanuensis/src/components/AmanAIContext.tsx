@@ -15,6 +15,8 @@ type GlobalContextType = {
   setCurrentQuestion: (q: { title: string, description: string }) => void;
   hasConnected: boolean;
   setHasConnected: (v: boolean) => void;
+  language: "ja" | "en";
+  toggleLanguage: () => void;
 };
 
 export const GlobalContext = createContext<GlobalContextType | null>(null);
@@ -28,7 +30,22 @@ export const useAmanAI = () => {
 function GlobalAgentListener() {
   const room = useRoomContext();
   const router = useRouter();
-  const { setCurrentQuestion } = useAmanAI();
+  const { setCurrentQuestion, language } = useAmanAI();
+
+  useEffect(() => {
+    if (room.state === 'connected' && language === 'en') {
+      const t = setTimeout(async () => {
+        try {
+          const payload = JSON.stringify({ action: "set_language", lang: "en" });
+          const encoder = new TextEncoder();
+          await room.localParticipant.publishData(encoder.encode(payload), { reliable: true });
+        } catch (e) {
+          console.error("Auto language config failed", e);
+        }
+      }, 800);
+      return () => clearTimeout(t);
+    }
+  }, [room.state, language, room.localParticipant]);
 
   useEffect(() => {
     // Expose sendScannedContext through a ref or global window for now since it needs `room` access
@@ -40,6 +57,18 @@ function GlobalAgentListener() {
           await room.localParticipant.publishData(encoder.encode(payload), { reliable: true });
         } catch (e) {
           console.error("Failed to send camera data", e);
+        }
+      };
+      
+      (window as any).sendLanguageChange = async (lang: "ja" | "en") => {
+        try {
+          if (room.state === 'connected') {
+            const payload = JSON.stringify({ action: "set_language", lang });
+            const encoder = new TextEncoder();
+            await room.localParticipant.publishData(encoder.encode(payload), { reliable: true });
+          }
+        } catch (e) {
+          console.error("Failed to send language config", e);
         }
       };
     }
@@ -75,10 +104,20 @@ export function GlobalLiveKitProvider({ children }: { children: React.ReactNode 
   const [token, setToken] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
   const [hasConnected, setHasConnected] = useState(false);
+  const [language, setLanguage] = useState<"ja" | "en">("ja");
   const [currentQuestion, setCurrentQuestion] = useState({
     title: "ご用件について",
     description: "本日はどのようなご用件でしょうか？詳細をお話しください。"
   });
+
+  const toggleLanguage = async () => {
+    const newLang = language === "ja" ? "en" : "ja";
+    setLanguage(newLang);
+    // If the window exposes the datachannel interface directly or if connected:
+    if (typeof window !== "undefined" && (window as any).sendLanguageChange) {
+      (window as any).sendLanguageChange(newLang);
+    }
+  };
 
   const connect = async () => {
     if (token) return;
@@ -133,6 +172,8 @@ export function GlobalLiveKitProvider({ children }: { children: React.ReactNode 
         setCurrentQuestion,
         hasConnected,
         setHasConnected,
+        language,
+        toggleLanguage,
         sendScannedContext: async (text: string) => {
           if (!token) return;
           // Context is sent via DataChannel from the component inside the room
