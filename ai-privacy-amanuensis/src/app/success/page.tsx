@@ -56,7 +56,7 @@ export default function Success() {
   }, [submissionId]);
 
   return (
-    <div className="flex flex-col h-screen w-full bg-gradient-to-br from-slate-900 to-slate-800 items-center justify-center p-6">
+    <div className="flex flex-col h-full overflow-y-auto w-full bg-gradient-to-br from-slate-900 to-slate-800 items-center justify-start p-6 pt-12 pb-24">
       {/* Success Animation */}
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
