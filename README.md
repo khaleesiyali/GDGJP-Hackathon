@@ -1,6 +1,6 @@
 # AmanAI (アマンAI) 🎙️📄
 
-## 📖 What is this app about? (アプリについて)
+## 📖 ABOUT (アプリについて)
 
 **[English]**
 AmanAI is a privacy-first, voice-driven Progressive Web App (PWA) designed to assist users—especially visually impaired individuals or foreigners living in Japan—in filling out complex Japanese government forms. Featuring a bilingual AI Audio Agent, users can easily converse with the AI in either English or Japanese. The AI will audibly ask the necessary questions, scan physical documents for information using the camera, and then accurately generate a fully formatted Japanese PDF ready for submission at the city hall, completely hands-free!
